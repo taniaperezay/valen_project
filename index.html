@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Sala de cumpleaños</title>
+<meta name="description" content="Una sala de cumpleaños en pixel art, entre lo gótico y lo japonés, donde dejar regalos, envolverlos y decorar la tarta.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Shippori+Mincho:wght@500;600;800&family=DotGothic16&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/style.css">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'><text y='14' font-size='14'>🏮</text></svg>">
+</head>
+<body>
+
+<div class="marco">
+
+  <header class="cabecera">
+    <p class="fecha" id="fecha"></p>
+    <h1 id="saludo">Feliz cumple</h1>
+    <p class="subtitulo" id="subtitulo"></p>
+  </header>
+
+  <div class="escenario" id="escenario">
+    <canvas id="sala" aria-label="Sala de cumpleaños en pixel art: una ventana de arco con la luna, faroles de papel colgados, una tarta sobre una mesa lacada y los regalos sobre el tatami."></canvas>
+  </div>
+
+  <p class="pista">Toca la tarta, un regalo, un farol o el gato.</p>
+
+  <nav class="acciones" aria-label="Acciones de la sala">
+    <button class="btn btn-principal" id="btn-regalo">Dejar un regalo</button>
+    <button class="btn" id="btn-tarta">Personalizar la tarta</button>
+    <button class="btn" id="btn-soplar">Soplar las velas</button>
+    <button class="btn" id="btn-sala">Decorar la sala</button>
+    <button class="btn" id="btn-lista">Ver los regalos (<span id="contador">0</span>)</button>
+    <button class="btn" id="btn-nota">Leer la nota</button>
+    <button class="btn btn-tenue" id="btn-datos">Códigos y copia</button>
+  </nav>
+
+  <footer class="pie">
+    <p>Todo lo que dejes aquí se guarda en este navegador. Para enviárselo a otra persona, usa
+      <button class="enlace" id="pie-datos" type="button">un código de regalo</button>.</p>
+  </footer>
+
+</div>
+
+<div class="aviso" id="aviso" role="status" aria-live="polite" hidden></div>
+
+
+<!-- ============ Ventana: dejar un regalo ============ -->
+<div class="fondo" id="modal-regalo" hidden>
+  <div class="ventana" role="dialog" aria-modal="true" aria-labelledby="t-regalo">
+    <div class="ventana-cabecera">
+      <h2 id="t-regalo">Envuelve tu regalo</h2>
+      <button class="cerrar" data-cerrar aria-label="Cerrar">×</button>
+    </div>
+
+    <div class="ventana-cuerpo dos-columnas">
+      <div class="previa">
+        <canvas id="previa-regalo" width="52" height="46" aria-label="Vista previa del regalo"></canvas>
+        <p class="previa-pie">Así se verá sobre el tatami</p>
+      </div>
+
+      <div class="controles">
+        <label class="campo">
+          <span>De parte de</span>
+          <input type="text" id="reg-de" maxlength="24" placeholder="Tu nombre" autocomplete="name">
+        </label>
+
+        <label class="campo">
+          <span>Mensaje</span>
+          <textarea id="reg-mensaje" rows="3" maxlength="400" placeholder="Lo que le dirías al dárselo en mano."></textarea>
+        </label>
+
+        <fieldset class="grupo">
+          <legend>Color del papel</legend>
+          <div class="muestras" id="sw-caja"></div>
+        </fieldset>
+
+        <fieldset class="grupo">
+          <legend>Color del cordón</legend>
+          <div class="muestras" id="sw-cinta"></div>
+        </fieldset>
+
+        <fieldset class="grupo">
+          <legend>Estampado del papel</legend>
+          <div class="fichas" id="ch-patron"></div>
+        </fieldset>
+
+        <fieldset class="grupo">
+          <legend>Remate del cordón</legend>
+          <div class="fichas" id="ch-lazo"></div>
+        </fieldset>
+
+        <fieldset class="grupo">
+          <legend>Tamaño</legend>
+          <div class="fichas" id="ch-tamano"></div>
+        </fieldset>
+      </div>
+    </div>
+
+    <div class="ventana-pie">
+      <button class="btn btn-principal" id="reg-dejar">Dejar el regalo</button>
+      <button class="btn" id="reg-codigo">Copiar código para enviar</button>
+      <button class="btn btn-tenue" data-cerrar>Cancelar</button>
+    </div>
+  </div>
+</div>
+
+
+<!-- ============ Ventana: tarta ============ -->
+<div class="fondo" id="modal-tarta" hidden>
+  <div class="ventana" role="dialog" aria-modal="true" aria-labelledby="t-tarta">
+    <div class="ventana-cabecera">
+      <h2 id="t-tarta">La tarta</h2>
+      <button class="cerrar" data-cerrar aria-label="Cerrar">×</button>
+    </div>
+
+    <div class="ventana-cuerpo dos-columnas">
+      <div class="previa">
+        <canvas id="previa-tarta" width="72" height="64" aria-label="Vista previa de la tarta"></canvas>
+        <p class="previa-pie">Vista previa</p>
+      </div>
+
+      <div class="controles">
+        <fieldset class="grupo">
+          <legend>Pisos</legend>
+          <div class="fichas" id="ch-pisos"></div>
+        </fieldset>
+
+        <fieldset class="grupo">
+          <legend>Color del bizcocho</legend>
+          <div class="muestras" id="sw-bizcocho"></div>
+        </fieldset>
+
+        <fieldset class="grupo">
+          <legend>Color de la cobertura</legend>
+          <div class="muestras" id="sw-cobertura"></div>
+        </fieldset>
+
+        <fieldset class="grupo">
+          <legend>Adorno</legend>
+          <div class="fichas" id="ch-topper"></div>
+        </fieldset>
+
+        <label class="campo campo-fila">
+          <span>Velas: <b id="velas-num">0</b></span>
+          <input type="range" id="tarta-velas" min="0" max="12" step="1">
+        </label>
+
+        <label class="campo campo-fila">
+          <span>Polvo dorado</span>
+          <input type="checkbox" id="tarta-chispas">
+        </label>
+      </div>
+    </div>
+
+    <div class="ventana-pie">
+      <button class="btn btn-principal" id="tarta-guardar">Guardar la tarta</button>
+      <button class="btn btn-tenue" data-cerrar>Cancelar</button>
+    </div>
+  </div>
+</div>
+
+
+<!-- ============ Ventana: decorar la sala ============ -->
+<div class="fondo" id="modal-sala" hidden>
+  <div class="ventana ventana-estrecha" role="dialog" aria-modal="true" aria-labelledby="t-sala">
+    <div class="ventana-cabecera">
+      <h2 id="t-sala">Decorar la sala</h2>
+      <button class="cerrar" data-cerrar aria-label="Cerrar">×</button>
+    </div>
+
+    <div class="ventana-cuerpo">
+      <div class="controles">
+        <fieldset class="grupo">
+          <legend>Luz de la ventana</legend>
+          <div class="fichas" id="ch-momento"></div>
+        </fieldset>
+
+        <fieldset class="grupo">
+          <legend>Color de la pared</legend>
+          <div class="muestras" id="sw-pared"></div>
+        </fieldset>
+
+        <fieldset class="grupo">
+          <legend>Color del tatami</legend>
+          <div class="muestras" id="sw-tatami"></div>
+        </fieldset>
+
+        <fieldset class="grupo">
+          <legend>Faroles colgados</legend>
+          <div class="fichas" id="ch-faroles"></div>
+        </fieldset>
+
+        <label class="campo campo-fila">
+          <span>Que esté el gato</span>
+          <input type="checkbox" id="sala-mascota">
+        </label>
+      </div>
+    </div>
+
+    <div class="ventana-pie">
+      <button class="btn btn-principal" data-cerrar>Listo</button>
+    </div>
+  </div>
+</div>
+
+
+<!-- ============ Ventana: lista de regalos ============ -->
+<div class="fondo" id="modal-lista" hidden>
+  <div class="ventana" role="dialog" aria-modal="true" aria-labelledby="t-lista">
+    <div class="ventana-cabecera">
+      <h2 id="t-lista">Los regalos</h2>
+      <button class="cerrar" data-cerrar aria-label="Cerrar">×</button>
+    </div>
+    <div class="ventana-cuerpo">
+      <div class="rejilla" id="rejilla-regalos"></div>
+      <p class="vacio" id="lista-vacia" hidden>El tatami está vacío. Sé la primera en dejar algo.</p>
+    </div>
+    <div class="ventana-pie">
+      <button class="btn btn-tenue" data-cerrar>Cerrar</button>
+    </div>
+  </div>
+</div>
+
+
+<!-- ============ Ventana: un regalo abierto ============ -->
+<div class="fondo" id="modal-detalle" hidden>
+  <div class="ventana ventana-estrecha" role="dialog" aria-modal="true" aria-labelledby="t-detalle">
+    <div class="ventana-cabecera">
+      <h2 id="t-detalle">Un regalo</h2>
+      <button class="cerrar" data-cerrar aria-label="Cerrar">×</button>
+    </div>
+    <div class="ventana-cuerpo">
+      <div class="tarjeta-regalo">
+        <canvas id="detalle-canvas" width="52" height="46"></canvas>
+        <div>
+          <p class="de" id="detalle-de"></p>
+          <p class="cuando" id="detalle-cuando"></p>
+        </div>
+      </div>
+      <p class="mensaje" id="detalle-mensaje"></p>
+    </div>
+    <div class="ventana-pie">
+      <button class="btn btn-tenue" data-cerrar>Cerrar</button>
+      <button class="btn btn-peligro" id="detalle-quitar">Quitar este regalo</button>
+    </div>
+  </div>
+</div>
+
+
+<!-- ============ Ventana: códigos y copia de seguridad ============ -->
+<div class="fondo" id="modal-datos" hidden>
+  <div class="ventana" role="dialog" aria-modal="true" aria-labelledby="t-datos">
+    <div class="ventana-cabecera">
+      <h2 id="t-datos">Códigos y copia</h2>
+      <button class="cerrar" data-cerrar aria-label="Cerrar">×</button>
+    </div>
+
+    <div class="ventana-cuerpo">
+      <section class="bloque">
+        <h3>Añadir un regalo que te han enviado</h3>
+        <p class="ayuda">Pega aquí el código que te pasó tu amiga y el regalo aparecerá en la sala.</p>
+        <textarea id="codigo-entrada" rows="3" placeholder="Pega el código o el enlace"></textarea>
+        <button class="btn btn-principal" id="codigo-anadir">Añadir a la sala</button>
+      </section>
+
+      <section class="bloque">
+        <h3>Copia de seguridad</h3>
+        <p class="ayuda">Guarda este texto en un archivo si no quieres perder la sala al cambiar de navegador.</p>
+        <textarea id="copia-texto" rows="4" spellcheck="false"></textarea>
+        <div class="fila-botones">
+          <button class="btn" id="copia-copiar">Copiar</button>
+          <button class="btn" id="copia-restaurar">Restaurar desde el texto</button>
+          <button class="btn btn-peligro" id="copia-vaciar">Vaciar la sala</button>
+        </div>
+      </section>
+    </div>
+
+    <div class="ventana-pie">
+      <button class="btn btn-tenue" data-cerrar>Cerrar</button>
+    </div>
+  </div>
+</div>
+
+
+<!-- ============ Ventana: la nota ============ -->
+<div class="fondo" id="modal-nota" hidden>
+  <div class="ventana ventana-estrecha" role="dialog" aria-modal="true" aria-labelledby="t-nota">
+    <div class="ventana-cabecera">
+      <h2 id="t-nota">Una nota para ti</h2>
+      <button class="cerrar" data-cerrar aria-label="Cerrar">×</button>
+    </div>
+    <div class="ventana-cuerpo">
+      <p class="mensaje" id="nota-texto"></p>
+      <p class="de" id="nota-de"></p>
+    </div>
+    <div class="ventana-pie">
+      <button class="btn btn-principal" data-cerrar>Gracias</button>
+    </div>
+  </div>
+</div>
+
+
+<script src="js/config.js"></script>
+<script src="js/room.js"></script>
+<script src="js/app.js"></script>
+</body>
+</html>

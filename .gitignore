@@ -1,0 +1,14 @@
+# Sistema
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Editor
+.vscode/*
+!.vscode/extensions.json
+.idea/
+
+# Dependencias y compilados (por si más adelante añades alguna)
+node_modules/
+dist/
+*.log
