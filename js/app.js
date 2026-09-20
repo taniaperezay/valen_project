@@ -482,7 +482,7 @@
       aviso("El farol se balancea y la llama se aviva.");
       Room.confeti(zona.x + zona.w / 2, zona.y + zona.h / 2, 18);
     } else if (zona.id === "gato") {
-      aviso("El gato abre un ojo, suena el cascabel y se vuelve a dormir.");
+      aviso("Hola tita, soy el Puma. La Tania me ha traído a tu cumpleaños para que vigile tus regalos.");
       Room.confeti(zona.x + zona.w / 2, zona.y, 10);
     }
   }
