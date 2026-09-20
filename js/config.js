@@ -6,12 +6,12 @@
 
 const CONFIG = {
   // --- Lo básico -------------------------------------------
-  nombre: "Lucía",                  // el nombre de tu mejor amiga
-  edad: null,                       // pon un número (ej: 23) o deja null para no mostrarlo
-  fecha: "2026-10-04",              // fecha del cumple (formato AAAA-MM-DD)
+  nombre: "Valen",                  // el nombre de tu mejor amiga
+  edad: 24,                       // pon un número (ej: 23) o deja null para no mostrarlo
+  fecha: "2026-12-04",              // fecha del cumple (formato AAAA-MM-DD)
 
   titulo: "La sala de Lucía",       // aparece en la pestaña del navegador
-  saludo: "Feliz cumpleaños, Lucía",
+  saludo: "Feliz cumpleaños, Valen <3",
   subtitulo: "Pasa sin hacer ruido. Deja tu regalo y enciende una vela.",
 
   // Texto de la nota que abre la sala (se lee al pulsar "Leer la nota")
