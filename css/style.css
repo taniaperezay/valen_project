@@ -127,6 +127,52 @@ body {
   background: var(--panel);
 }
 
+/* ---------- flechas para recorrer la sala ---------- */
+
+.flecha {
+  position: absolute;
+  top: 50%;
+  z-index: 6;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 64px;
+  padding: 0;
+  color: var(--papel);
+  background: rgba(20, 16, 28, 0.72);
+  border: 2px solid var(--tinta);
+  box-shadow: 2px 2px 0 rgba(0, 0, 0, 0.55), var(--filo);
+  cursor: pointer;
+  transform: translateY(-50%);
+  -webkit-tap-highlight-color: transparent;
+}
+
+.flecha[hidden] { display: none; }
+
+.flecha svg {
+  width: 15px;
+  height: 21px;
+  fill: currentColor;
+  shape-rendering: crispEdges;
+}
+
+.flecha-izq { left: 8px; animation: empuje-izq 1.6s steps(1) 3; }
+.flecha-der { right: 8px; animation: empuje-der 1.6s steps(1) 3; }
+
+.flecha:hover { color: var(--oro); border-color: var(--oro); }
+.flecha:active { background: rgba(140, 47, 69, 0.9); }
+
+/* Al entrar, las flechas dan tres empujoncitos para que se vean */
+@keyframes empuje-izq {
+  0%, 60%, 100% { translate: 0 0; }
+  70%, 85% { translate: -3px 0; }
+}
+@keyframes empuje-der {
+  0%, 60%, 100% { translate: 0 0; }
+  70%, 85% { translate: 3px 0; }
+}
+
 /* ---------- botones sobre la sala ---------- */
 
 .hud {
@@ -666,8 +712,33 @@ input[type="checkbox"] { accent-color: var(--carmin-vivo); width: 22px; height: 
   .hud-carta svg { width: 28px; height: 20px; }
 }
 
-@media (max-width: 760px) and (orientation: portrait) {
+/* ---------- en vertical: la sala a pantalla completa, como un juego ---------- */
+
+@media (orientation: portrait) {
+  .marco { padding: 0; max-width: none; }
+
+  .pantalla {
+    width: 100%;
+    padding: 0;
+    border: none;
+    box-shadow: none;
+  }
+
+  /* Se recorre con las flechas o deslizando, sin barra de scroll */
+  .visor { scrollbar-width: none; }
+  .visor::-webkit-scrollbar { display: none; }
+
   .pista-movil { display: block; }
+
+  .hud { top: 10px; gap: 5px; }
+  .hud-izq { left: 10px; }
+  .hud-der { right: 10px; }
+  .hud-btn { padding: 8px; gap: 5px; }
+  .hud-btn svg { width: 18px; height: 18px; }
+  .hud-carta { right: 12px; bottom: 14px; }
+
+  /* El aviso sube un poco para no tapar la carta */
+  .aviso { bottom: 84px; }
 }
 
 @media (max-width: 560px) {
@@ -682,6 +753,6 @@ input[type="checkbox"] { accent-color: var(--carmin-vivo); width: 22px; height: 
 
 @media (prefers-reduced-motion: reduce) {
   * { transition: none !important; }
-  .hud-carta.sin-leer { animation: none; }
+  .hud-carta.sin-leer, .flecha { animation: none; }
   .btn:hover, .hud-btn:hover, .regalo-tarjeta:hover { transform: none; }
 }

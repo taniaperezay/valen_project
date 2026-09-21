@@ -1617,6 +1617,10 @@ const Room = (function () {
 
   // Altura de referencia: solo se actualiza al girar el móvil o cambiar el
   // ancho, para que la barra del navegador no cambie el tamaño al hacer scroll.
+  // Qué parte del alto de la pantalla ocupa la sala en vertical (1 = toda).
+  // Bájalo (por ejemplo a 0.8) si quieres ver más sala a lo ancho.
+  const ZOOM_VERTICAL = 1;
+
   let altoBase = 0;
   let anchoVentana = 0;
   let anchoAnterior = 0;
@@ -1635,22 +1639,22 @@ const Room = (function () {
     const bordes = parseFloat(e.paddingLeft) + parseFloat(e.paddingRight) +
                    parseFloat(e.borderLeftWidth) + parseFloat(e.borderRightWidth);
     const disponible = escenario.clientWidth - bordes;
-    const movilVertical = anchoVentana < 760 && altoBase > anchoVentana;
+    const vertical = altoBase > anchoVentana;
 
     let escala;
-    if (movilVertical) {
-      // En el móvil en vertical la sala ocupa algo más de media pantalla de alto
-      // y se desliza a los lados, como en un juego.
-      escala = Math.max(disponible / W, (altoBase * 0.64) / H);
+    if (vertical) {
+      // En vertical (móvil o tablet) la sala ocupa toda la pantalla de alto
+      // y se recorre a los lados con las flechas o deslizando, como un juego.
+      escala = Math.max(disponible / W, (altoBase * ZOOM_VERTICAL) / H);
     } else {
       escala = Math.min(disponible / W, (altoBase * 0.9) / H);
       if (escala >= 5) escala = Math.floor(escala);
     }
     escala = Math.max(escala, 0.5);
 
-    const ancho = Math.round(W * escala);
+    const ancho = Math.floor(W * escala);
     canvas.style.width = ancho + "px";
-    canvas.style.height = Math.round(H * escala) + "px";
+    canvas.style.height = Math.floor(H * escala) + "px";
 
     // Al cambiar de tamaño, la vista vuelve a centrarse en la tarta
     if (ancho !== anchoAnterior) {

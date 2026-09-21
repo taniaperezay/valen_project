@@ -626,6 +626,38 @@
     history.replaceState(null, "", location.pathname + location.search);
   }
 
+  /* ---------- flechas para recorrer la sala ---------- */
+
+  function actualizarFlechas() {
+    const v = $("#visor");
+    const max = v.scrollWidth - v.clientWidth;
+    $("#flecha-izq").hidden = max <= 2 || v.scrollLeft <= 2;
+    $("#flecha-der").hidden = max <= 2 || v.scrollLeft >= max - 2;
+  }
+
+  function moverSala(direccion) {
+    const v = $("#visor");
+    const suave = !window.matchMedia || !window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    v.scrollBy({ left: direccion * v.clientWidth * 0.6, behavior: suave ? "smooth" : "auto" });
+  }
+
+  function conectarFlechas() {
+    $("#flecha-izq").addEventListener("click", function () { moverSala(-1); });
+    $("#flecha-der").addEventListener("click", function () { moverSala(1); });
+    $("#visor").addEventListener("scroll", actualizarFlechas, { passive: true });
+    window.addEventListener("resize", function () { setTimeout(actualizarFlechas, 0); });
+
+    // En el ordenador también se puede mover con las flechas del teclado
+    document.addEventListener("keydown", function (ev) {
+      if (hayVentanaAbierta()) return;
+      if (ev.target.closest && ev.target.closest("input, textarea")) return;
+      if (ev.key === "ArrowLeft") { moverSala(-1); ev.preventDefault(); }
+      if (ev.key === "ArrowRight") { moverSala(1); ev.preventDefault(); }
+    });
+
+    actualizarFlechas();
+  }
+
   /* ---------- arranque ---------- */
 
   function conectarEventos() {
@@ -703,6 +735,7 @@
 
     Room.init($("#sala"), function () { return estado; }, clicEnSala);
     conectarEventos();
+    conectarFlechas();
     requestAnimationFrame(bucleVistas);
     abrir("modal-bienvenida");   // el saludo sale en una ventana al entrar
     revisarEnlace();
