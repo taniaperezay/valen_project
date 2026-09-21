@@ -75,6 +75,8 @@ const Room = (function () {
   let velasApagadas = false;
   let sinMovimiento = false;
   let posicionesRegalo = [];
+  let escena = "principal";     // "principal" o "regalos"
+  let fundido = 0;              // oscuridad del paso de una sala a otra
 
   /* ---------- utilidades de dibujo ---------- */
 
@@ -366,8 +368,8 @@ const Room = (function () {
 
   /* ---------- el rollo colgante (kakejiku) ---------- */
 
-  function kakejiku() {
-    const x = 200, y = 28, w = 26, h = 54;
+  function kakejiku(xk) {
+    const x = xk === undefined ? 200 : xk, y = 28, w = 26, h = 54;
 
     // Cordón en V desde el clavo
     for (let k = 0; k < 10; k++) {
@@ -679,7 +681,8 @@ const Room = (function () {
     enredaderaColgante(190, 46, 7);
     enredaderaColgante(252, 36, 9);
     enredaderaTravesano(0, 64, 5);
-    enredaderaTravesano(186, 256, 6);
+    enredaderaTravesano(186, 192, 6);     // se corta donde está la puerta
+    enredaderaTravesano(232, 256, 8);
   }
 
   /* ---------- ramas de sakura ---------- */
@@ -744,36 +747,49 @@ const Room = (function () {
     Y: ["#.#", "#.#", ".#.", ".#.", ".#."], Z: ["###", "..#", ".#.", "#..", "###"],
   };
 
-  function textoGuirnalda() {
-    const nombre = (typeof CONFIG !== "undefined" && CONFIG.nombre) ? CONFIG.nombre : "";
-    return ("Felicidades " + nombre).trim().toUpperCase()
+  function nombreCumple() {
+    return (typeof CONFIG !== "undefined" && CONFIG.nombre) ? CONFIG.nombre : "";
+  }
+
+  function textoConfig(clave, alternativa) {
+    return (typeof CONFIG !== "undefined" && CONFIG[clave]) || alternativa;
+  }
+
+  function limpiarTexto(t) {
+    return String(t).trim().toUpperCase()
       .normalize("NFD").replace(/[\u0300-\u036f]/g, "");   // quita las tildes
+  }
+
+  function textoGuirnalda() {
+    return limpiarTexto("Felicidades " + nombreCumple());
   }
 
   const PASO_BANDERIN = 6;                         // ancho de cada banderín + hueco
 
   // Dónde empieza y acaba la guirnalda (también lo usa la cuerda del techo)
-  function rangoGuirnalda() {
-    const n = textoGuirnalda().length;
-    const x0 = Math.round(128 - (n * PASO_BANDERIN) / 2);
+  function rangoGuirnalda(texto, centro) {
+    const n = (texto === undefined ? textoGuirnalda() : limpiarTexto(texto)).length;
+    const x0 = Math.round((centro || 128) - (n * PASO_BANDERIN) / 2);
     return { x0: x0, x1: x0 + n * PASO_BANDERIN, a: x0 - 10, b: x0 + n * PASO_BANDERIN + 10 };
   }
 
-  function guirnalda() {
-    const texto = textoGuirnalda();
+  // texto y centro son opcionales; atado es la altura donde se sujeta el cordel
+  function guirnalda(textoLibre, centro, atado) {
+    const texto = textoLibre === undefined ? textoGuirnalda() : limpiarTexto(textoLibre);
     const paso = PASO_BANDERIN;
-    const r = rangoGuirnalda();
+    const r = rangoGuirnalda(textoLibre, centro);
     const x0 = r.x0, a = r.a, b = r.b;             // a y b: donde se ata el cordel
+    const yAtado = atado === undefined ? 9 : atado;
     const cordelY = function (x) {
       return 13 + Math.round(3 * Math.sin(Math.PI * (x - a) / (b - a)));
     };
     const colores = ["#f7c9d8", "#fde2eb"];
     const brisa = onda(70, 1);
 
-    // Cordel, atado a la cuerda del techo por los dos extremos
+    // Cordel, atado por los dos extremos
     for (let x = a; x <= b; x++) px(x, cordelY(x), 1, 1, "#ead3da");
-    px(a, 9, 1, 4, "#ead3da");
-    px(b, 9, 1, 4, "#ead3da");
+    px(a, yAtado, 1, 13 - yAtado, "#ead3da");
+    px(b, yAtado, 1, 13 - yAtado, "#ead3da");
 
     for (let i = 0; i < texto.length; i++) {
       const letra = LETRAS[texto[i]];
@@ -794,6 +810,344 @@ const Room = (function () {
         }
       }
     }
+  }
+
+  /* ---------- la puerta vintage ---------- */
+
+  // Puerta pintada en malva con cuarterones, un montante de vidriera en
+  // abanico y una cornisa con volutas doradas y una guirnalda de rosas.
+  // (x, abajo): esquina inferior izquierda de la hoja. pomoDerecha indica
+  // de qué lado está el pomo, que es por donde se escapa la luz.
+  function puerta(x, abajo, pomoDerecha, id, letrero) {
+    const w = 28, h = 60;
+    const y = abajo - h;
+    const pintura = "#8a5a72", pinturaClara = "#a4738c", pinturaHonda = "#6a4058";
+    const marco = "#4e3446", marcoClaro = "#6d4b61";
+    const latido = sinMovimiento ? 0.5 : (Math.sin(frame / 30) + 1) / 2;
+
+    // Luz rosa que sale por debajo y se derrama por el suelo
+    px(x + 2, abajo, w - 4, 1, "rgba(255,150,205," + (0.35 + latido * 0.2).toFixed(2) + ")");
+    px(x - 2, abajo + 1, w + 4, 2, "rgba(255,150,205," + (0.12 + latido * 0.08).toFixed(2) + ")");
+    px(x - 6, abajo + 3, w + 12, 3, "rgba(255,150,205,0.06)");
+
+    // Marco con moldura
+    px(x - 4, y - 1, w + 8, h + 1, marco);
+    px(x - 4, y - 1, 1, h + 1, marcoClaro);
+    px(x - 2, y - 1, 1, h + 1, marcoClaro);
+    px(x + w + 1, y - 1, 1, h + 1, "#3a2434");
+    px(x - 5, abajo - 3, w + 10, 3, marco);             // zócalo del marco
+
+    // Hoja de la puerta
+    px(x, y, w, h, pintura);
+    px(x, y, 1, h, pinturaClara);
+    px(x + w - 1, y, 1, h, pinturaHonda);
+
+    // Cuatro cuarterones: dos altos arriba y dos bajos abajo
+    const cuarteron = function (cx, cy, cw, ch) {
+      px(cx, cy, cw, ch, pinturaHonda);
+      px(cx + 1, cy + 1, cw - 2, ch - 2, pintura);
+      px(cx + 1, cy + 1, cw - 2, 1, pinturaClara);
+      px(cx + 1, cy + 1, 1, ch - 2, pinturaClara);
+      px(cx + 2, cy + 2, cw - 4, ch - 4, tono(pintura, 0.03));
+    };
+    cuarteron(x + 3, y + 4, 10, 28);
+    cuarteron(x + 15, y + 4, 10, 28);
+    cuarteron(x + 3, y + 36, 10, 20);
+    cuarteron(x + 15, y + 36, 10, 20);
+
+    // Corazón pintado en los cuarterones de arriba
+    corazon(x + 8, y + 14, "#f3b8d0");
+    corazon(x + 20, y + 14, "#f3b8d0");
+
+    // Pomo de latón y bocallave
+    const px0 = pomoDerecha ? x + w - 5 : x + 3;
+    px(px0, y + 33, 3, 3, ORO);
+    px(px0, y + 33, 1, 1, "#f3dc8a");
+    px(px0 + 1, y + 37, 1, 2, "#2a1a24");
+
+    // Entreabierta: una rendija de luz del lado del pomo
+    const rx = pomoDerecha ? x + w - 1 : x;
+    px(rx, y + 1, 1, h - 2, "rgba(255,170,215," + (0.55 + latido * 0.35).toFixed(2) + ")");
+
+    // ----- La senefa de arriba -----
+
+    // Montante en abanico con vidriera de colores
+    const cx = x + w / 2, base = y - 1, r = 13;
+    const vidrios = ["#f7b8d0", "#c9b6f0", "#b8ecd8", "#fbe9a6", "#b6d8f5", "#fcc9b0"];
+    for (let dy = 0; dy <= 9; dy++) {
+      const ancho = Math.floor(Math.sqrt(Math.max(0, 1 - (dy * dy) / 100)) * r);
+      for (let dx = -ancho; dx < ancho; dx++) {
+        // El color depende del ángulo, como los gajos de un abanico
+        const ang = Math.atan2(dy + 0.5, dx + 0.5);
+        const gajo = Math.min(5, Math.floor((ang / Math.PI) * 6));
+        const brillo = 0.12 * latido;
+        px(cx + dx, base - dy - 1, 1, 1, tono(vidrios[gajo], brillo - 0.08));
+      }
+    }
+    // Plomos dorados del abanico y el centro
+    for (let k = 1; k < 6; k++) {
+      const ang = (k / 6) * Math.PI;
+      for (let t = 2; t < 10; t++) {
+        px(Math.round(cx + Math.cos(ang) * t * 1.3) - 1, Math.round(base - Math.sin(ang) * t) - 1, 1, 1, "#c9a227");
+      }
+    }
+    for (let dy = 0; dy <= 10; dy++) {                   // borde del arco
+      const ancho = Math.round(Math.sqrt(Math.max(0, 1 - (dy * dy) / 110)) * (r + 1));
+      px(cx - ancho - 1, base - dy - 1, 1, 1, ORO);
+      px(cx + ancho, base - dy - 1, 1, 1, ORO);
+    }
+    px(cx - r - 2, base - 1, (r + 2) * 2, 1, ORO);
+    circulo(cx, base - 1, 2, ORO);
+    px(cx - 1, base - 2, 2, 1, "#f3dc8a");
+
+    // Cornisa con dentículos, algo más ancha que el marco, como un frontón
+    const cy = base - 15;
+    px(cx - r - 9, cy, (r + 9) * 2, 3, marco);
+    px(cx - r - 9, cy, (r + 9) * 2, 1, marcoClaro);
+    for (let dx = -r - 8; dx < r + 8; dx += 3) px(cx + dx, cy + 3, 2, 2, marco);
+    px(cx - r - 10, cy - 2, (r + 10) * 2, 2, ORO);
+    px(cx - r - 10, cy - 2, (r + 10) * 2, 1, "#f3dc8a");
+
+    // Volutas doradas en los extremos
+    const voluta = function (vx, lado) {
+      px(vx, cy - 5, 3, 1, ORO);
+      px(vx + (lado > 0 ? 2 : 0), cy - 4, 1, 2, ORO);
+      px(vx + (lado > 0 ? 0 : 2), cy - 6, 1, 1, ORO);
+      px(vx + 1, cy - 4, 1, 1, "#f3dc8a");
+    };
+    voluta(cx - r - 10, -1);
+    voluta(cx + r + 7, 1);
+
+    // Cartela con el letrero de la puerta
+    cartela(cx, cy - 2, letrero);
+
+    zonas.push({ id: id, x: x - 8, y: cy - 22, w: w + 16, h: abajo - cy + 24 });
+  }
+
+  // Parte el letrero en una o dos líneas que quepan sobre la puerta
+  function lineasLetrero(letrero) {
+    const texto = limpiarTexto(letrero || "Regalos");
+    if (texto.length <= 10) return [texto];
+    const palabras = texto.split(/\s+/);
+    let mejor = [texto], peor = Infinity;
+    for (let k = 1; k < palabras.length; k++) {
+      const l1 = palabras.slice(0, k).join(" "), l2 = palabras.slice(k).join(" ");
+      const largo = Math.max(l1.length, l2.length);
+      if (largo < peor) { peor = largo; mejor = [l1, l2]; }
+    }
+    return mejor;
+  }
+
+  // Cartela vintage: marco dorado, papel crema, letras ciruela y una rosa
+  // encima. (cx, abajo) es el centro de su borde inferior.
+  function cartela(cx, abajo, letrero) {
+    const lineas = lineasLetrero(letrero);
+    const largo = Math.max.apply(null, lineas.map(function (l) { return l.length; }));
+    const anchoTexto = largo * 4 - 1;
+    const w = anchoTexto + 6, h = lineas.length * 6 + 4;
+    const x = Math.round(cx - w / 2), y = abajo - h;
+
+    // Orejetas redondeadas a los lados, como las cartelas antiguas
+    px(x - 2, y + Math.floor(h / 2) - 2, 2, 4, ORO);
+    px(x + w, y + Math.floor(h / 2) - 2, 2, 4, ORO);
+    px(x - 1, y + Math.floor(h / 2) - 1, 1, 2, "#f3dc8a");
+    px(x + w, y + Math.floor(h / 2) - 1, 1, 2, "#f3dc8a");
+
+    px(x, y, w, h, ORO);
+    px(x, y, w, 1, "#f3dc8a");
+    px(x + 1, y + 1, w - 2, h - 2, "#f6e7dc");
+    px(x + 1, y + 1, w - 2, 1, "#fff6ee");
+    px(x + 1, y + h - 2, w - 2, 1, "#e9cfc6");
+
+    // Letras
+    lineas.forEach(function (linea, n) {
+      const lx = Math.round(cx - (linea.length * 4 - 1) / 2);
+      const ly = y + 3 + n * 6;
+      for (let i = 0; i < linea.length; i++) {
+        const letra = LETRAS[linea[i]];
+        if (!letra) continue;
+        for (let fy = 0; fy < 5; fy++) {
+          for (let fx = 0; fx < 3; fx++) {
+            if (letra[fy][fx] === "#") px(lx + i * 4 + fx, ly + fy, 1, 1, "#6a2a4a");
+          }
+        }
+      }
+    });
+
+    // Rosa en lo alto y dos rosas en las esquinas de abajo
+    px(cx - 3, y - 3, 6, 3, ORO);
+    px(cx - 2, y - 4, 4, 3, "#f38fb8");
+    px(cx - 1, y - 4, 2, 1, "#ffd0e4");
+    px(cx - 4, y - 2, 2, 1, "#6a9a58");
+    px(cx + 2, y - 2, 2, 1, "#6a9a58");
+    for (const [rx, lado] of [[x - 3, -1], [x + w + 1, 1]]) {
+      px(rx, abajo - 4, 2, 2, "#f7b8d0");
+      px(rx, abajo - 4, 1, 1, "#fff0f6");
+      px(rx + (lado < 0 ? -1 : 2), abajo - 3, 1, 1, "#6a9a58");
+    }
+  }
+
+
+  /* ---------- la sala de los regalos ---------- */
+
+  // Papel pintado vintage: rayas y rombos de damasco
+  function paredVintage(sala) {
+    const base = tono(sala.pared, 0.02);
+    px(0, 0, W, ZOCALO, base);
+    for (let x = 0; x < W; x += 12) px(x, 0, 6, ZOCALO, tono(base, 0.025));
+    let fila = 0;
+    for (let y = 30; y < ZOCALO - 4; y += 12) {
+      for (let x = 3 + (fila % 2 ? 6 : 0); x < W; x += 12) {
+        const d = tono(base, 0.075);
+        px(x, y - 1, 1, 1, d);
+        px(x - 1, y, 3, 1, d);
+        px(x, y + 1, 1, 1, d);
+      }
+      fila++;
+    }
+
+    // Techo y moldura de cuadros
+    px(0, 0, W, 4, tono(base, -0.1));
+    px(0, 22, W, 2, MADERA_CLARA);
+    px(0, 24, W, 1, TINTA);
+
+    // Friso de madera, igual que en la sala principal
+    px(0, ZOCALO, W, SUELO - ZOCALO, MADERA);
+    for (let x = 0; x < W; x += 16) px(x, ZOCALO + 3, 1, SUELO - ZOCALO - 3, tono(MADERA, -0.05));
+    px(0, ZOCALO, W, 3, MADERA_CLARA);
+    px(0, ZOCALO + 3, W, 1, TINTA);
+    px(0, SUELO - 2, W, 2, TINTA);
+  }
+
+  // Espejo ovalado con marco dorado y lazo
+  function espejo(cx, cy) {
+    elipse(cx, cy, 17, 21, "#8a6a1e");
+    elipse(cx, cy, 16, 20, ORO);
+    elipse(cx, cy, 13, 17, "#6a5020");
+    elipse(cx, cy, 12, 16, "#3a3350");
+    // Reflejo rosado y un brillo en diagonal
+    elipse(cx - 2, cy + 4, 8, 9, "#4a3a5c");
+    for (let k = 0; k < 10; k++) px(cx - 6 + k, cy - 10 + k, 1, 3, "rgba(255,210,235,0.28)");
+    px(cx - 9, cy - 4, 1, 6, "rgba(255,210,235,0.22)");
+    // Lazo de arriba
+    px(cx - 6, cy - 25, 5, 3, "#f38fb8");
+    px(cx + 1, cy - 25, 5, 3, "#f38fb8");
+    px(cx - 1, cy - 24, 2, 2, "#d9588f");
+    px(cx - 3, cy - 22, 2, 3, "#f38fb8");
+    px(cx + 1, cy - 22, 2, 3, "#f38fb8");
+  }
+
+  // Aparador lacado donde se exponen los regalos
+  function aparador(x0, x1) {
+    const arriba = 96, abajo = 118;
+    const laca = "#3a2230", lacaClara = "#52324a";
+    px(x0 - 2, arriba, x1 - x0 + 4, 3, lacaClara);           // tablero
+    px(x0 - 2, arriba, x1 - x0 + 4, 1, "#6d4a62");
+    px(x0 - 2, arriba + 3, x1 - x0 + 4, 1, TINTA);
+    px(x0, arriba + 4, x1 - x0, abajo - arriba - 4, laca);
+    // Puertas con filo dorado y tiradores
+    const n = 4, ancho = Math.floor((x1 - x0 - 6) / n);
+    for (let k = 0; k < n; k++) {
+      const px0 = x0 + 3 + k * ancho;
+      px(px0, arriba + 6, ancho - 2, abajo - arriba - 9, lacaClara);
+      px(px0 + 1, arriba + 7, ancho - 4, abajo - arriba - 11, laca);
+      px(px0 + 1, arriba + 7, ancho - 4, 1, "#8a6a1e");
+      px(px0 + Math.floor(ancho / 2) - 1, arriba + 12, 2, 2, ORO);
+    }
+    // Patas curvadas
+    for (const lx of [x0 + 2, x1 - 5]) {
+      px(lx, abajo, 3, 4, laca);
+      px(lx + (lx < (x0 + x1) / 2 ? -1 : 2), abajo + 4, 2, 2, laca);
+      px(lx, abajo + 6, 3, 1, ORO);
+    }
+    px(x0 + 4, abajo + 7, x1 - x0 - 8, 2, "rgba(10,6,14,0.35)");  // sombra
+  }
+
+  // Alfombra vintage con cenefa
+  function alfombra(x, y, w, h) {
+    px(x, y, w, h, "#5a2a45");
+    px(x + 2, y + 2, w - 4, h - 4, "#e6c3d3");
+    px(x + 3, y + 3, w - 6, h - 6, "#6d3a58");
+    for (let dx = 6; dx < w - 6; dx += 8) {
+      px(x + dx, y + 1, 2, 1, "#f3dc8a");
+      px(x + dx, y + h - 2, 2, 1, "#f3dc8a");
+    }
+    // Medallones de la trama
+    for (let dx = 14; dx < w - 10; dx += 22) {
+      const mx = x + dx, my = y + Math.floor(h / 2);
+      px(mx - 1, my - 3, 2, 6, "#b96d92");
+      px(mx - 3, my - 1, 6, 2, "#b96d92");
+      px(mx - 1, my - 1, 2, 2, "#f3b8d0");
+    }
+    // Flecos
+    for (let dx = 1; dx < w; dx += 3) {
+      px(x + dx, y - 1, 1, 1, "#e6c3d3");
+      px(x + dx, y + h, 1, 1, "#e6c3d3");
+    }
+  }
+
+  // Filas donde se colocan los regalos de esta sala
+  const FILAS_FIJOS = [
+    { y: 96, x0: 112, x1: 236 },     // encima del aparador
+    { y: 140, x0: 62, x1: 252 },
+    { y: 156, x0: 56, x1: 254 },
+  ];
+
+  function colocarEnFilas(regalos, filas) {
+    const res = [];
+    let fila = 0, x = filas[0].x0, pasada = 0;
+    for (let i = 0; i < regalos.length; i++) {
+      const t = TAMANOS[regalos[i].tamano] || TAMANOS.mediano;
+      let f = filas[fila];
+      if (x + t.w > f.x1) {
+        fila++;
+        if (fila >= filas.length) { fila = 0; pasada++; }
+        f = filas[fila];
+        x = f.x0;
+      }
+      res.push({ x: x, abajo: f.y - pasada * 12, w: t.w, h: t.h, i: i, fila: fila, pasada: pasada });
+      x += t.w + 3;
+    }
+    res.sort(function (a, b) { return (a.fila - b.fila) || (a.pasada - b.pasada); });
+    return res;
+  }
+
+  function dibujarSalaRegalos(est) {
+    paredVintage(est.sala);
+    kakejiku(64);
+    espejo(174, 52);
+    guirnalda("Para " + nombreCumple(), 174, 4);
+
+    const sala2 = est.sala;
+    enredaderaColgante(4, 58, 13);
+    enredaderaColgante(252, 44, 17);
+    enredaderaTravesano(0, 12, 14);
+    enredaderaTravesano(56, 256, 15);
+
+    // Dos faroles a los lados del espejo
+    if (sala2.faroles > 0) {
+      const v1 = onda(58, 2, 20), v2 = onda(58, 2, 90);
+      farol(122, 44, true, v1);
+      farol(228, 44, true, v2);
+      zonas.push({ id: "farol", i: 10, x: 122 + v1 - 8, y: 31, w: 16, h: 27 });
+      zonas.push({ id: "farol", i: 11, x: 228 + v2 - 8, y: 31, w: 16, h: 27 });
+    }
+
+    suelo();
+    alfombra(70, 126, 176, 32);
+    puerta(22, SUELO, true, "puerta-volver", textoConfig("textoPuertaVolver", "Volver a la fiesta"));
+    aparador(108, 240);
+
+    const fijos = est.fijos || [];
+    const pos = colocarEnFilas(fijos, FILAS_FIJOS);
+    for (const p of pos) {
+      dibujarRegalo(fijos[p.i], p.x, p.abajo, true);
+      zonas.push({ id: "regalo-fijo", i: p.i, x: p.x - 2, y: p.abajo - p.h - 9, w: p.w + 4, h: p.h + 11 });
+    }
+
+    luzRosa(true);
+    // Una tira LED más sobre el espejo
+    tiraLed(150, 26, 48, true);
   }
 
   /* ---------- el tatami y la mesa ---------- */
@@ -1482,14 +1836,14 @@ const Room = (function () {
     }
   }
 
-  function luzRosa() {
+  function luzRosa(sinEstante) {
     // Primero se apaga un poco la sala y luego se tiñe de rosa
     px(0, 0, W, H, "rgba(12,4,22,0.34)");
     px(0, 0, W, H, "rgba(255,70,165,0.09)");
 
     // Tiras LED: bajo el techo y bajo el estante
     tiraLed(0, 1, W, true);
-    tiraLed(104, 53, 48, true);
+    if (!sinEstante) tiraLed(104, 53, 48, true);
   }
 
   /* ---------- pétalos y confeti ---------- */
@@ -1554,14 +1908,39 @@ const Room = (function () {
     zonas = [];
     c.clearRect(0, 0, W, H);
 
+    if (escena === "regalos") {
+      dibujarSalaRegalos(est);
+    } else {
+      dibujarSalaPrincipal(est);
+    }
+
+    dibujarPetalos();
+    dibujarConfeti();
+
+    // Viñeteado suave: las esquinas quedan algo más oscuras
+    px(0, 0, 3, H, "rgba(10,6,16,0.28)");
+    px(W - 3, 0, 3, H, "rgba(10,6,16,0.28)");
+    px(0, 0, W, 2, "rgba(10,6,16,0.22)");
+    px(0, H - 2, W, 2, "rgba(10,6,16,0.22)");
+
+    // Fundido al cruzar la puerta
+    if (fundido > 0) {
+      px(0, 0, W, H, "rgba(8,4,12," + fundido.toFixed(2) + ")");
+      fundido = sinMovimiento ? 0 : Math.max(0, fundido - 0.05);
+    }
+
+    frame++;
+  }
+
+  function dibujarSalaPrincipal(est) {
     pared(est.sala);
     shimenawa();
     ventana(est.sala);
-    kakejiku();
     estante();
     posters();
     enredaderas();
     ramasSakura();
+    puerta(198, SUELO, false, "puerta", textoConfig("textoPuerta", "Regalos"));   // delante de las ramas
     faroles(est.sala);
     guirnalda();
     suelo();
@@ -1580,16 +1959,6 @@ const Room = (function () {
     elipse(128, 90, 30, 22, "rgba(255,190,225,0.06)");
     const alturaTarta = dibujarTarta(est.tarta, 128, 110);
     zonas.push({ id: "tarta", x: 98, y: alturaTarta, w: 60, h: 110 - alturaTarta });
-    dibujarPetalos();
-    dibujarConfeti();
-
-    // Viñeteado suave: las esquinas quedan algo más oscuras
-    px(0, 0, 3, H, "rgba(10,6,16,0.28)");
-    px(W - 3, 0, 3, H, "rgba(10,6,16,0.28)");
-    px(0, 0, W, 2, "rgba(10,6,16,0.22)");
-    px(0, H - 2, W, 2, "rgba(10,6,16,0.22)");
-
-    frame++;
   }
 
   function bucle() {
@@ -1745,6 +2114,25 @@ const Room = (function () {
     },
 
     ajustar: ajustarEscala,
+
+    // Cambia de sala con un fundido. "principal" o "regalos".
+    irA: function (nombre) {
+      escena = nombre === "regalos" ? "regalos" : "principal";
+      fundido = sinMovimiento ? 0 : 1;
+      confeti = [];
+      canvas.setAttribute("aria-label", escena === "regalos"
+        ? "La sala de los regalos: papel pintado vintage, un espejo ovalado, un aparador lacado y los regalos que ya te esperaban."
+        : "Sala de cumpleaños en pixel art: una ventana de arco con la luna, faroles de papel colgados, una tarta sobre una mesa lacada y los regalos sobre el tatami.");
+    },
+
+    escena: function () { return escena; },
+
+    // Centra la vista (cuando la sala no cabe entera) en una x de la sala
+    enfocar: function (xSala) {
+      const visor = canvas.parentElement;
+      const x = (xSala / W) * canvas.clientWidth - visor.clientWidth / 2;
+      visor.scrollLeft = Math.max(0, x);
+    },
 
     confeti: function (x, y, n) { lanzarConfeti(x, y, n || 40); },
 

@@ -45,6 +45,41 @@ const CONFIG = {
     toppings: ["nata", "perlas", "brillantes", "pinchos", "murcielagos"],
   },
 
+  // --- Regalos de la sala de los regalos ---------------------
+  // Letrero de la puerta que lleva a esta sala (sin tildes; si es
+  // largo se parte solo en dos líneas)
+  textoPuerta: "Regalos de Bloody",
+  // Letrero de la puerta para volver a la sala de la tarta
+  textoPuertaVolver: "Volver a la fiesta",
+
+  // Están detrás de la puerta de la derecha. Nadie los puede quitar
+  // ni cambiar desde la página: solo se editan aquí.
+  // caja y cinta: colores. patron: "liso", "rayas", "asanoha",
+  // "seigaiha" o "kikko". lazo: "mizuhiki", "luna", "sakura" o
+  // "ninguno". tamano: "pequeno", "mediano" o "grande".
+  regalosFijos: [
+    {
+      de: "Tu mejor amiga",
+      mensaje: "Escribe aquí lo que quieras decirle con este regalo.",
+      caja: "#8c2f45", cinta: "#c9a227", patron: "asanoha", lazo: "mizuhiki", tamano: "grande",
+    },
+    {
+      de: "El Puma",
+      mensaje: "Miau. He vigilado todos tus regalos. Este es el mío: una siesta al sol.",
+      caja: "#2b2736", cinta: "#b04058", patron: "kikko", lazo: "luna", tamano: "mediano",
+    },
+    {
+      de: "Max",
+      mensaje: "¡Guau! Te regalo mi pelota favorita. Casi no está mordida.",
+      caja: "#ded3c4", cinta: "#5f8f7a", patron: "rayas", lazo: "sakura", tamano: "pequeno",
+    },
+    {
+      de: "El conde Drácula",
+      mensaje: "Una capa de terciopelo para las noches frías. Quinientos años y aún tengo estilo.",
+      caja: "#4c3760", cinta: "#9a8fb0", patron: "seigaiha", lazo: "mizuhiki", tamano: "grande",
+    },
+  ],
+
   // --- Paletas que verán quienes envuelvan un regalo --------
   coloresCaja: [
     "#8c2f45", "#2b2736", "#4c3760", "#c9a227",

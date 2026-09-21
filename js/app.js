@@ -17,6 +17,8 @@
   let borrador = null;        // el regalo que se está envolviendo
   let borradorTarta = null;   // la tarta mientras se edita
   let detalleIndice = -1;
+  let detalleFijo = false;    // el regalo abierto es de la sala de regalos
+  let regalosFijos = [];      // los de config.js, que no se pueden quitar
   let ultimoFoco = null;
   let temporizadorAviso = null;
 
@@ -348,13 +350,15 @@
 
   function dejarRegalo() {
     const g = leerFormularioRegalo();
+    // Los regalos que se dejan van siempre a la sala principal
+    if (enSalaRegalos()) cambiarSala("principal", true);
     estado.regalos.push(g);
     guardar();
     actualizarContador();
     cerrar();
     aviso("Tu regalo ya está en el tatami. Gracias, " + g.de + ".");
     const indice = estado.regalos.length - 1;
-    setTimeout(function () { Room.confetiEnRegalo(indice, 40); }, 80);
+    setTimeout(function () { Room.confetiEnRegalo(indice, 40); }, 150);
   }
 
   function copiarCodigoRegalo() {
@@ -426,16 +430,45 @@
 
   /* ---------- lista y detalle ---------- */
 
+  /* ---------- las dos salas ---------- */
+
+  function enSalaRegalos() { return Room.escena() === "regalos"; }
+
+  // Los regalos de la sala en la que se está
+  function regalosDeAqui() { return enSalaRegalos() ? regalosFijos : estado.regalos; }
+
+  function cambiarSala(nombre, sinAviso) {
+    Room.irA(nombre);
+    // Al llegar, la vista se coloca junto a la puerta por la que se entra
+    Room.enfocar(nombre === "regalos" ? 110 : 190);
+    actualizarContador();
+    if (sinAviso) return;
+    if (nombre === "regalos") {
+      aviso(regalosFijos.length
+        ? "Esta es la sala de los regalos. Aquí te esperaban " + regalosFijos.length +
+          (regalosFijos.length === 1 ? " regalo." : " regalos.")
+        : "Esta es la sala de los regalos. Todavía está vacía.");
+    } else {
+      aviso("Vuelves a la sala de la tarta.");
+    }
+  }
+
   function actualizarContador() {
-    $("#contador").textContent = String(estado.regalos.length);
+    $("#contador").textContent = String(regalosDeAqui().length);
   }
 
   function abrirLista() {
     const rejilla = $("#rejilla-regalos");
+    const fijos = enSalaRegalos();
+    const lista = regalosDeAqui();
     rejilla.innerHTML = "";
-    $("#lista-vacia").hidden = estado.regalos.length > 0;
+    $("#t-lista").textContent = fijos ? "La sala de los regalos" : "Los regalos que te han dejado";
+    $("#lista-vacia").textContent = fijos
+      ? "Aquí todavía no hay regalos. Se añaden en config.js, en regalosFijos."
+      : "El tatami está vacío. Sé la primera en dejar algo.";
+    $("#lista-vacia").hidden = lista.length > 0;
 
-    estado.regalos.forEach(function (g, i) {
+    lista.forEach(function (g, i) {
       const tarjeta = document.createElement("button");
       tarjeta.type = "button";
       tarjeta.className = "regalo-tarjeta";
@@ -449,7 +482,7 @@
       nombre.textContent = g.de;
       tarjeta.appendChild(nombre);
 
-      tarjeta.addEventListener("click", function () { abrirDetalle(i); });
+      tarjeta.addEventListener("click", function () { abrirDetalle(i, fijos); });
       rejilla.appendChild(tarjeta);
       Room.previaRegalo(lienzo.getContext("2d"), g);
     });
@@ -457,13 +490,17 @@
     abrir("modal-lista");
   }
 
-  function abrirDetalle(indice) {
-    const g = estado.regalos[indice];
+  function abrirDetalle(indice, fijo) {
+    const g = (fijo ? regalosFijos : estado.regalos)[indice];
     if (!g) return;
     detalleIndice = indice;
+    detalleFijo = !!fijo;
     $("#detalle-de").textContent = "De " + g.de;
-    $("#detalle-cuando").textContent = new Date(g.fecha)
-      .toLocaleDateString("es-ES", { day: "numeric", month: "long", year: "numeric" });
+    $("#detalle-cuando").textContent = fijo
+      ? "Te esperaba en la sala de los regalos"
+      : new Date(g.fecha).toLocaleDateString("es-ES", { day: "numeric", month: "long", year: "numeric" });
+    // Los regalos fijos no se pueden quitar
+    $("#detalle-quitar").hidden = !!fijo;
     $("#detalle-mensaje").textContent = g.mensaje || "Vino sin nota, pero con cariño.";
     cerrar();
     abrir("modal-detalle");
@@ -471,7 +508,7 @@
   }
 
   function quitarRegalo() {
-    if (detalleIndice < 0) return;
+    if (detalleIndice < 0 || detalleFijo) return;
     const g = estado.regalos[detalleIndice];
     if (!confirm("¿Quitar el regalo de " + g.de + "? No se puede deshacer.")) return;
     estado.regalos.splice(detalleIndice, 1);
@@ -548,7 +585,13 @@
     if (zona.id === "tarta") {
       abrirTarta();
     } else if (zona.id === "regalo") {
-      abrirDetalle(zona.i);
+      abrirDetalle(zona.i, false);
+    } else if (zona.id === "regalo-fijo") {
+      abrirDetalle(zona.i, true);
+    } else if (zona.id === "puerta") {
+      cambiarSala("regalos");
+    } else if (zona.id === "puerta-volver") {
+      cambiarSala("principal");
     } else if (zona.id === "farol") {
       aviso("El farolillo se balancea y la llama se aviva.");
       Room.confeti(zona.x + zona.w / 2, zona.y + zona.h / 2, 18);
@@ -663,7 +706,11 @@
 
   function conectarEventos() {
     $("#btn-regalo").addEventListener("click", abrirRegalo);
-    $("#btn-tarta").addEventListener("click", abrirTarta);
+    // La tarta está en la sala principal: si estás en la otra, se vuelve primero
+    $("#btn-tarta").addEventListener("click", function () {
+      if (enSalaRegalos()) cambiarSala("principal", true);
+      abrirTarta();
+    });
     $("#btn-sala").addEventListener("click", abrirSala);
     $("#btn-lista").addEventListener("click", abrirLista);
     $("#btn-nota").addEventListener("click", abrirNota);
@@ -672,6 +719,7 @@
     $("#btn-bienvenida").addEventListener("click", function () { abrir("modal-bienvenida"); });
 
     $("#btn-soplar").addEventListener("click", function () {
+      if (enSalaRegalos()) cambiarSala("principal", true);
       if (estado.tarta.velas === 0) {
         aviso("Primero ponle velas a la tarta.");
         return;
@@ -734,7 +782,16 @@
     ctxPreviaTarta = $("#previa-tarta").getContext("2d");
     ctxDetalle = $("#detalle-canvas").getContext("2d");
 
-    Room.init($("#sala"), function () { return estado; }, clicEnSala);
+    // Regalos fijos de config.js (no se guardan ni se pueden quitar)
+    regalosFijos = (Array.isArray(CONFIG.regalosFijos) ? CONFIG.regalosFijos : [])
+      .slice(0, 60)
+      .map(function (g, i) {
+        return sanearRegalo(Object.assign({}, g, { id: "fijo-" + i, fecha: 0 }));
+      });
+
+    Room.init($("#sala"), function () {
+      return { sala: estado.sala, tarta: estado.tarta, regalos: estado.regalos, fijos: regalosFijos };
+    }, clicEnSala);
     conectarEventos();
     conectarFlechas();
     requestAnimationFrame(bucleVistas);
