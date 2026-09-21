@@ -26,6 +26,30 @@
 
   /* ---------- avisos ---------- */
 
+  // El botón de las velas cambia de texto sin perder su icono
+  function etiquetaSoplar(texto) {
+    const b = $("#btn-soplar");
+    b.querySelector(".etiqueta").textContent = texto;
+    b.title = texto;
+    Room.ajustar();   // por si el texto nuevo ya no cabe
+  }
+
+  /* ---------- la nota ---------- */
+
+  const CLAVE_NOTA = "sala-cumple-nota-leida";
+
+  function abrirNota() {
+    try { localStorage.setItem(CLAVE_NOTA, "1"); } catch (e) { /* sin guardado */ }
+    $("#btn-nota").classList.remove("sin-leer");
+    abrir("modal-nota");
+  }
+
+  function marcarNota() {
+    let leida = false;
+    try { leida = localStorage.getItem(CLAVE_NOTA) === "1"; } catch (e) { leida = false; }
+    $("#btn-nota").classList.toggle("sin-leer", !leida);
+  }
+
   function aviso(texto) {
     const el = $("#aviso");
     el.textContent = texto;
@@ -70,17 +94,43 @@
     };
   }
 
+  // Toppings que se pueden combinar en la tarta
+  const TOPPINGS = [
+    { id: "nata", nombre: "Nata" },
+    { id: "perlas", nombre: "Perlas" },
+    { id: "chispas", nombre: "Chispitas" },
+    { id: "brillantes", nombre: "Brillantes" },
+    { id: "pinchos", nombre: "Pinchos" },
+    { id: "murcielagos", nombre: "Murciélagos" },
+    { id: "cerezas", nombre: "Cerezas" },
+    { id: "carita", nombre: "Carita kawaii" },
+  ];
+
+  // Adorno del frente de la tarta (solo uno)
+  const ADORNOS = [
+    { id: "calavera", nombre: "Calavera" },
+    { id: "corona", nombre: "Corona" },
+    { id: "luna", nombre: "Luna" },
+    { id: "sakura", nombre: "Sakura" },
+    { id: "corazon", nombre: "Corazón" },
+    { id: "ninguno", nombre: "Ninguno" },
+  ];
+
+  const TOPPINGS_INICIALES = ["nata", "perlas", "brillantes", "pinchos", "murcielagos"];
+
   function sanearTarta(t) {
-    t = t || {};
     const base = CONFIG.tartaInicial;
+    const inicial = Array.isArray(base.toppings) ? base.toppings : TOPPINGS_INICIALES;
+    // Una tarta guardada con la versión anterior (sin toppings) se renueva entera
+    if (!t || !Array.isArray(t.toppings)) t = Object.assign({}, base, { toppings: inicial });
     return {
       pisos: entero(t.pisos, 1, 3, base.pisos),
       bizcocho: color(t.bizcocho, base.bizcocho),
       cobertura: color(t.cobertura, base.cobertura),
-      chispas: typeof t.chispas === "boolean" ? t.chispas : base.chispas,
       velas: entero(t.velas, 0, 12, base.velas),
-      topper: ["luna", "sakura", "corazon", "ninguno"].indexOf(t.topper) >= 0
-        ? t.topper : base.topper,
+      topper: deLista(t.topper, ADORNOS, "calavera"),
+      toppings: TOPPINGS.map(function (o) { return o.id; })
+        .filter(function (id) { return t.toppings.indexOf(id) >= 0; }),
     };
   }
 
@@ -180,7 +230,8 @@
     const m = document.getElementById(id);
     m.hidden = false;
     document.body.style.overflow = "hidden";
-    const primero = m.querySelector("input, textarea, button:not(.cerrar)");
+    const primero = m.querySelector("[autofocus]") ||
+      m.querySelector("input, textarea, button:not(.cerrar)");
     if (primero) primero.focus();
   }
 
@@ -221,6 +272,26 @@
       b.addEventListener("click", function () {
         alElegir(op.id);
         marcarSeleccion(cont, op.id);
+      });
+      cont.appendChild(b);
+    });
+  }
+
+  // Como construir(), pero se pueden marcar varias fichas a la vez
+  function construirVarias(selector, opciones, marcadas, alCambiar) {
+    const cont = $(selector);
+    cont.innerHTML = "";
+    opciones.forEach(function (op) {
+      const b = document.createElement("button");
+      b.type = "button";
+      b.className = "ficha";
+      b.textContent = op.nombre;
+      b.dataset.valor = op.id;
+      b.setAttribute("aria-pressed", String(marcadas.indexOf(op.id) >= 0));
+      b.addEventListener("click", function () {
+        const activa = b.getAttribute("aria-pressed") !== "true";
+        b.setAttribute("aria-pressed", String(activa));
+        alCambiar(op.id, activa);
       });
       cont.appendChild(b);
     });
@@ -316,16 +387,16 @@
       function (v) { borradorTarta.bizcocho = v; });
     construir("#sw-cobertura", comoOpciones(CONFIG.coloresTarta), "color", borradorTarta.cobertura,
       function (v) { borradorTarta.cobertura = v; });
-    construir("#ch-topper", [
-      { id: "luna", nombre: "Luna" },
-      { id: "sakura", nombre: "Sakura" },
-      { id: "corazon", nombre: "Corazón" },
-      { id: "ninguno", nombre: "Ninguno" },
-    ], "ficha", borradorTarta.topper, function (v) { borradorTarta.topper = v; });
+    construir("#ch-topper", ADORNOS, "ficha", borradorTarta.topper,
+      function (v) { borradorTarta.topper = v; });
+    construirVarias("#ch-toppings", TOPPINGS, borradorTarta.toppings, function (id, activa) {
+      const lista = borradorTarta.toppings.filter(function (x) { return x !== id; });
+      if (activa) lista.push(id);
+      borradorTarta.toppings = lista;
+    });
 
     $("#tarta-velas").value = borradorTarta.velas;
     $("#velas-num").textContent = borradorTarta.velas;
-    $("#tarta-chispas").checked = borradorTarta.chispas;
     abrir("modal-tarta");
   }
 
@@ -333,7 +404,7 @@
     estado.tarta = sanearTarta(borradorTarta);
     guardar();
     Room.encenderVelas();
-    $("#btn-soplar").textContent = "Soplar las velas";
+    etiquetaSoplar("Soplar las velas");
     cerrar();
     aviso("La tarta ya está servida.");
   }
@@ -479,11 +550,17 @@
     } else if (zona.id === "regalo") {
       abrirDetalle(zona.i);
     } else if (zona.id === "farol") {
-      aviso("El farol se balancea y la llama se aviva.");
+      aviso("El farolillo se balancea y la llama se aviva.");
       Room.confeti(zona.x + zona.w / 2, zona.y + zona.h / 2, 18);
     } else if (zona.id === "gato") {
       aviso("Hola tita, soy el Puma. La Tania me ha traído a tu cumpleaños para que vigile tus regalos.");
       Room.confeti(zona.x + zona.w / 2, zona.y, 10);
+    } else if (zona.id === "perro") {
+      aviso("¡Guau! Soy el Max y he venido a comerme las migas de la tarta.");
+      Room.confeti(zona.x + zona.w / 2, zona.y, 10);
+    } else if (zona.id === "dracula") {
+      aviso("Llevo quinientos años de cumpleaños y ninguno con una tarta tan buena. Feliz cumple, " + CONFIG.nombre + ".");
+      Room.confeti(zona.x + 33, zona.y + 8, 14);
     }
   }
 
@@ -556,9 +633,10 @@
     $("#btn-tarta").addEventListener("click", abrirTarta);
     $("#btn-sala").addEventListener("click", abrirSala);
     $("#btn-lista").addEventListener("click", abrirLista);
-    $("#btn-nota").addEventListener("click", function () { abrir("modal-nota"); });
+    $("#btn-nota").addEventListener("click", abrirNota);
     $("#btn-datos").addEventListener("click", abrirDatos);
-    $("#pie-datos").addEventListener("click", abrirDatos);
+    $("#pie-datos").addEventListener("click", function () { cerrar(); abrirDatos(); });
+    $("#btn-bienvenida").addEventListener("click", function () { abrir("modal-bienvenida"); });
 
     $("#btn-soplar").addEventListener("click", function () {
       if (estado.tarta.velas === 0) {
@@ -567,10 +645,10 @@
       }
       if (Room.velasEstanApagadas()) {
         Room.encenderVelas();
-        this.textContent = "Soplar las velas";
+        etiquetaSoplar("Soplar las velas");
       } else {
         Room.soplarVelas();
-        this.textContent = "Encender las velas";
+        etiquetaSoplar("Encender las velas");
         aviso("Se apagan las velas. Pide un deseo.");
       }
     });
@@ -582,9 +660,6 @@
     $("#tarta-velas").addEventListener("input", function () {
       borradorTarta.velas = parseInt(this.value, 10);
       $("#velas-num").textContent = this.value;
-    });
-    $("#tarta-chispas").addEventListener("change", function () {
-      borradorTarta.chispas = this.checked;
     });
 
     $("#sala-mascota").addEventListener("change", function () {
@@ -620,6 +695,7 @@
     estado = cargar();
     pintarCabecera();
     actualizarContador();
+    marcarNota();
 
     ctxPreviaRegalo = $("#previa-regalo").getContext("2d");
     ctxPreviaTarta = $("#previa-tarta").getContext("2d");
@@ -628,6 +704,7 @@
     Room.init($("#sala"), function () { return estado; }, clicEnSala);
     conectarEventos();
     requestAnimationFrame(bucleVistas);
+    abrir("modal-bienvenida");   // el saludo sale en una ventana al entrar
     revisarEnlace();
   }
 

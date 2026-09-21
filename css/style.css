@@ -43,10 +43,15 @@ body {
   line-height: 1.6;
 }
 
+/* La página es solo la sala, centrada en la pantalla */
 .marco {
-  max-width: 920px;
+  max-width: 1400px;
+  min-height: 100vh;
   margin: 0 auto;
-  padding: 30px 16px 56px;
+  padding: 18px 16px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
 }
 
 /* ---------- cabecera ---------- */
@@ -93,35 +98,183 @@ body {
 .escenario {
   display: flex;
   justify-content: center;
-  padding: 9px;
+}
+
+/* El marco que rodea la sala; los botones se colocan encima */
+.pantalla {
+  position: relative;
+  max-width: 100%;
+  padding: 6px;
   background: var(--panel-alto);
   border: var(--borde);
   box-shadow: var(--sombra-honda), var(--filo);
+}
+
+/* La sala en sí. En el móvil se desliza a los lados. */
+.visor {
+  max-width: 100%;
+  overflow-x: auto;
+  overflow-y: hidden;
+  scrollbar-width: thin;
+  scrollbar-color: var(--oro-tenue) transparent;
+  -webkit-overflow-scrolling: touch;
 }
 
 #sala {
   display: block;
   image-rendering: pixelated;
   image-rendering: crisp-edges;
-  border: 1px solid var(--tinta);
   background: var(--panel);
+}
+
+/* ---------- botones sobre la sala ---------- */
+
+.hud {
+  position: absolute;
+  top: 14px;
+  z-index: 5;
+  display: flex;
+  gap: 6px;
+}
+
+.hud-izq { left: 14px; }
+.hud-der { right: 14px; }
+
+.hud-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-family: var(--texto);
+  font-size: 15px;
+  line-height: 1.2;
+  color: var(--papel);
+  background: rgba(20, 16, 28, 0.82);
+  border: 2px solid var(--tinta);
+  box-shadow: 2px 2px 0 rgba(0, 0, 0, 0.55), var(--filo);
+  padding: 7px 9px;
+  cursor: pointer;
+  transition: transform 0.07s steps(2), box-shadow 0.07s steps(2),
+              color 0.12s linear, border-color 0.12s linear;
+}
+
+.hud-btn svg {
+  width: 18px;
+  height: 18px;
+  flex: none;
+  fill: currentColor;
+  shape-rendering: crispEdges;
+}
+
+.hud-btn:hover {
+  color: var(--oro);
+  border-color: var(--oro);
+  transform: translate(2px, 2px);
+  box-shadow: none;
+}
+
+.hud-btn:active { transform: translate(3px, 3px); }
+
+.hud-principal { background: rgba(140, 47, 69, 0.94); }
+.hud-principal:hover { background: rgba(176, 64, 88, 0.96); color: var(--papel); }
+.hud-tenue { color: var(--papel-tenue); }
+
+.contador {
+  min-width: 18px;
+  padding: 2px 4px;
+  font-size: 13px;
+  line-height: 1.1;
+  text-align: center;
+  color: var(--tinta);
+  background: var(--oro);
+}
+
+/* Los textos de los botones solo se ven en pantallas grandes;
+   en las pequeñas quedan los iconos (y los lectores de pantalla
+   siguen leyendo el texto). */
+.etiqueta {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}
+
+/* room.js añade "hud-amplio" solo cuando los textos caben sin solaparse */
+.hud-amplio .etiqueta {
+  position: static;
+  width: auto;
+  height: auto;
+  overflow: visible;
+  clip: auto;
+}
+
+/* ---------- la carta de la nota ---------- */
+
+.hud-carta {
+  position: absolute;
+  right: 16px;
+  bottom: 16px;
+  z-index: 5;
+  padding: 8px 9px;
+  line-height: 0;
+  background: rgba(20, 16, 28, 0.82);
+  border: 2px solid var(--tinta);
+  box-shadow: 2px 2px 0 rgba(0, 0, 0, 0.55), var(--filo);
+  cursor: pointer;
+  transition: transform 0.07s steps(2), box-shadow 0.07s steps(2), border-color 0.12s linear;
+}
+
+.hud-carta svg {
+  width: 33px;
+  height: 24px;
+  shape-rendering: crispEdges;
+}
+
+.hud-carta:hover {
+  border-color: var(--oro);
+  transform: translate(2px, 2px);
+  box-shadow: none;
+}
+
+/* El globo rojo de "mensaje sin leer" */
+.globo {
+  position: absolute;
+  top: -8px;
+  right: -8px;
+  min-width: 18px;
+  height: 18px;
+  padding: 0 3px;
+  font-family: var(--texto);
+  font-size: 12px;
+  line-height: 14px;
+  text-align: center;
+  color: #fff;
+  background: #d8243c;
+  border: 2px solid var(--tinta);
+}
+
+.hud-carta:not(.sin-leer) .globo { display: none; }
+
+/* Mientras no se ha leído, la carta da un saltito de vez en cuando */
+.hud-carta.sin-leer { animation: saltito 2.4s steps(1) infinite; }
+
+@keyframes saltito {
+  0%, 84%, 100% { translate: 0 0; }
+  88%, 94% { translate: 0 -3px; }
 }
 
 .pista {
   text-align: center;
   color: var(--papel-tenue);
   font-size: 16px;
-  margin: 16px 0 22px;
+  margin: 14px 0 0;
+  padding: 0 12px;
 }
 
-/* ---------- botones ---------- */
+.pista-movil { display: none; }
 
-.acciones {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: center;
-  gap: 10px;
-}
+/* ---------- botones de las ventanas ---------- */
 
 .btn {
   font-family: var(--texto);
@@ -172,14 +325,27 @@ body {
   cursor: pointer;
 }
 
-.pie {
-  margin-top: 36px;
+/* ---------- ventana de bienvenida ---------- */
+
+.bienvenida { text-align: center; margin: 0; padding-top: 26px; }
+.bienvenida .pista { margin: 18px 0 0; padding: 0; font-size: 15px; }
+.bienvenida .pista-movil { margin-top: 4px; }
+
+.pie-bienvenida {
+  flex-direction: column;
+  align-items: center;
   text-align: center;
-  font-size: 16px;
-  color: var(--papel-tenue);
 }
 
-.pie p { max-width: 52ch; margin: 0 auto; }
+.pie-bienvenida .btn { min-width: 60%; }
+
+.pie {
+  margin: 4px 0 0;
+  max-width: 44ch;
+  font-size: 14px;
+  line-height: 1.5;
+  color: var(--papel-tenue);
+}
 
 /* ---------- ventanas ---------- */
 
@@ -469,7 +635,8 @@ input[type="checkbox"] { accent-color: var(--carmin-vivo); width: 22px; height: 
   box-shadow: var(--sombra), var(--filo);
   border-left: 3px solid var(--oro);
   font-size: 17px;
-  max-width: calc(100% - 32px);
+  width: max-content;
+  max-width: min(560px, calc(100% - 32px));
   text-align: center;
 }
 
@@ -477,17 +644,44 @@ input[type="checkbox"] { accent-color: var(--carmin-vivo); width: 22px; height: 
 
 /* ---------- pantallas pequeñas ---------- */
 
+@media (max-width: 760px) {
+  .marco { padding: 0; }
+  .fecha { font-size: 13px; margin-bottom: 6px; }
+  .cabecera h1 { font-size: 26px; }
+
+  /* La sala ocupa todo el ancho, sin marco */
+  .pantalla {
+    width: 100%;
+    padding: 0;
+    border-left: none;
+    border-right: none;
+    box-shadow: none;
+  }
+
+  .hud { top: 8px; gap: 5px; }
+  .hud-izq { left: 8px; }
+  .hud-der { right: 8px; }
+  .hud-btn { padding: 7px; gap: 5px; }
+  .hud-carta { right: 10px; bottom: 10px; padding: 6px 7px; }
+  .hud-carta svg { width: 28px; height: 20px; }
+}
+
+@media (max-width: 760px) and (orientation: portrait) {
+  .pista-movil { display: block; }
+}
+
 @media (max-width: 560px) {
   body { font-size: 18px; }
-  .marco { padding: 20px 12px 40px; }
   .dos-columnas { grid-template-columns: 1fr; }
   .previa { position: static; }
   .btn { font-size: 16px; padding: 9px 12px; }
   .ventana-pie .btn { flex: 1 1 auto; }
   .ventana-cabecera h2 { font-size: 19px; }
+  .hud-btn svg { width: 16px; height: 16px; }
 }
 
 @media (prefers-reduced-motion: reduce) {
   * { transition: none !important; }
-  .btn:hover, .regalo-tarjeta:hover { transform: none; }
+  .hud-carta.sin-leer { animation: none; }
+  .btn:hover, .hud-btn:hover, .regalo-tarjeta:hover { transform: none; }
 }

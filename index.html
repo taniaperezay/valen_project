@@ -15,36 +15,70 @@
 
 <div class="marco">
 
-  <header class="cabecera">
-    <p class="fecha" id="fecha"></p>
-    <h1 id="saludo">Feliz cumple</h1>
-    <p class="subtitulo" id="subtitulo"></p>
-  </header>
-
   <div class="escenario" id="escenario">
-    <canvas id="sala" aria-label="Sala de cumpleaños en pixel art: una ventana de arco con la luna, faroles de papel colgados, una tarta sobre una mesa lacada y los regalos sobre el tatami."></canvas>
+    <div class="pantalla">
+      <div class="visor" id="visor">
+        <canvas id="sala" aria-label="Sala de cumpleaños en pixel art: una ventana de arco con la luna, faroles de papel colgados, una tarta sobre una mesa lacada y los regalos sobre el tatami."></canvas>
+      </div>
+
+      <!-- Botones superpuestos a la sala, como en un juego -->
+      <nav class="hud hud-izq" aria-label="Acciones principales">
+        <button class="hud-btn hud-principal" id="btn-regalo" type="button" title="Dejar un regalo">
+          <svg viewBox="0 0 9 9" aria-hidden="true"><path d="M2 0h1v1h-1zM6 0h1v1h-1zM1 1h1v1h-1zM3 1h1v1h-1zM5 1h1v1h-1zM7 1h1v1h-1zM2 2h1v1h-1zM3 2h1v1h-1zM5 2h1v1h-1zM6 2h1v1h-1zM0 3h1v1h-1zM1 3h1v1h-1zM2 3h1v1h-1zM3 3h1v1h-1zM4 3h1v1h-1zM5 3h1v1h-1zM6 3h1v1h-1zM7 3h1v1h-1zM8 3h1v1h-1zM0 4h1v1h-1zM1 4h1v1h-1zM2 4h1v1h-1zM3 4h1v1h-1zM5 4h1v1h-1zM6 4h1v1h-1zM7 4h1v1h-1zM8 4h1v1h-1zM0 5h1v1h-1zM1 5h1v1h-1zM2 5h1v1h-1zM3 5h1v1h-1zM4 5h1v1h-1zM5 5h1v1h-1zM6 5h1v1h-1zM7 5h1v1h-1zM8 5h1v1h-1zM0 6h1v1h-1zM1 6h1v1h-1zM2 6h1v1h-1zM3 6h1v1h-1zM5 6h1v1h-1zM6 6h1v1h-1zM7 6h1v1h-1zM8 6h1v1h-1zM0 7h1v1h-1zM1 7h1v1h-1zM2 7h1v1h-1zM3 7h1v1h-1zM5 7h1v1h-1zM6 7h1v1h-1zM7 7h1v1h-1zM8 7h1v1h-1zM0 8h1v1h-1zM1 8h1v1h-1zM2 8h1v1h-1zM3 8h1v1h-1zM5 8h1v1h-1zM6 8h1v1h-1zM7 8h1v1h-1zM8 8h1v1h-1z"/></svg><span class="etiqueta">Dejar un regalo</span>
+        </button>
+        <button class="hud-btn" id="btn-tarta" type="button" title="Personalizar la tarta">
+          <svg viewBox="0 0 9 9" aria-hidden="true"><path d="M2 0h1v1h-1zM4 0h1v1h-1zM6 0h1v1h-1zM2 1h1v1h-1zM4 1h1v1h-1zM6 1h1v1h-1zM2 2h1v1h-1zM4 2h1v1h-1zM6 2h1v1h-1zM1 4h1v1h-1zM2 4h1v1h-1zM3 4h1v1h-1zM4 4h1v1h-1zM5 4h1v1h-1zM6 4h1v1h-1zM7 4h1v1h-1zM1 5h1v1h-1zM3 5h1v1h-1zM5 5h1v1h-1zM7 5h1v1h-1zM1 6h1v1h-1zM2 6h1v1h-1zM3 6h1v1h-1zM4 6h1v1h-1zM5 6h1v1h-1zM6 6h1v1h-1zM7 6h1v1h-1zM0 7h1v1h-1zM1 7h1v1h-1zM2 7h1v1h-1zM3 7h1v1h-1zM4 7h1v1h-1zM5 7h1v1h-1zM6 7h1v1h-1zM7 7h1v1h-1zM8 7h1v1h-1zM0 8h1v1h-1zM1 8h1v1h-1zM2 8h1v1h-1zM3 8h1v1h-1zM4 8h1v1h-1zM5 8h1v1h-1zM6 8h1v1h-1zM7 8h1v1h-1zM8 8h1v1h-1z"/></svg><span class="etiqueta">Tarta</span>
+        </button>
+        <button class="hud-btn" id="btn-soplar" type="button" title="Soplar las velas">
+          <svg viewBox="0 0 9 9" aria-hidden="true"><path d="M4 0h1v1h-1zM3 1h1v1h-1zM4 1h1v1h-1zM5 1h1v1h-1zM3 2h1v1h-1zM4 2h1v1h-1zM5 2h1v1h-1zM4 3h1v1h-1zM3 4h1v1h-1zM4 4h1v1h-1zM5 4h1v1h-1zM3 5h1v1h-1zM4 5h1v1h-1zM5 5h1v1h-1zM3 6h1v1h-1zM4 6h1v1h-1zM5 6h1v1h-1zM3 7h1v1h-1zM4 7h1v1h-1zM5 7h1v1h-1zM2 8h1v1h-1zM3 8h1v1h-1zM4 8h1v1h-1zM5 8h1v1h-1zM6 8h1v1h-1z"/></svg><span class="etiqueta">Soplar las velas</span>
+        </button>
+      </nav>
+
+      <nav class="hud hud-der" aria-label="Más opciones">
+        <button class="hud-btn" id="btn-bienvenida" type="button" title="Bienvenida">
+          <svg viewBox="0 0 9 9" aria-hidden="true"><path d="M2 0h1v1h-1zM3 0h1v1h-1zM4 0h1v1h-1zM5 0h1v1h-1zM6 0h1v1h-1zM1 1h1v1h-1zM2 1h1v1h-1zM6 1h1v1h-1zM7 1h1v1h-1zM1 2h1v1h-1zM2 2h1v1h-1zM6 2h1v1h-1zM7 2h1v1h-1zM5 3h1v1h-1zM6 3h1v1h-1zM4 4h1v1h-1zM5 4h1v1h-1zM4 5h1v1h-1zM5 5h1v1h-1zM4 7h1v1h-1zM5 7h1v1h-1zM4 8h1v1h-1zM5 8h1v1h-1z"/></svg><span class="etiqueta">Bienvenida</span>
+        </button>
+        <button class="hud-btn" id="btn-lista" type="button" title="Ver los regalos">
+          <svg viewBox="0 0 9 9" aria-hidden="true"><path d="M0 0h1v1h-1zM2 0h1v1h-1zM3 0h1v1h-1zM4 0h1v1h-1zM5 0h1v1h-1zM6 0h1v1h-1zM7 0h1v1h-1zM8 0h1v1h-1zM0 2h1v1h-1zM2 2h1v1h-1zM3 2h1v1h-1zM4 2h1v1h-1zM5 2h1v1h-1zM6 2h1v1h-1zM7 2h1v1h-1zM8 2h1v1h-1zM0 4h1v1h-1zM2 4h1v1h-1zM3 4h1v1h-1zM4 4h1v1h-1zM5 4h1v1h-1zM6 4h1v1h-1zM7 4h1v1h-1zM8 4h1v1h-1zM0 6h1v1h-1zM2 6h1v1h-1zM3 6h1v1h-1zM4 6h1v1h-1zM5 6h1v1h-1zM6 6h1v1h-1zM7 6h1v1h-1zM8 6h1v1h-1zM0 8h1v1h-1zM2 8h1v1h-1zM3 8h1v1h-1zM4 8h1v1h-1zM5 8h1v1h-1zM6 8h1v1h-1zM7 8h1v1h-1zM8 8h1v1h-1z"/></svg><span class="etiqueta">Regalos</span><span class="contador" id="contador">0</span>
+        </button>
+        <button class="hud-btn" id="btn-sala" type="button" title="Decorar la sala">
+          <svg viewBox="0 0 9 9" aria-hidden="true"><path d="M4 0h1v1h-1zM2 1h1v1h-1zM3 1h1v1h-1zM4 1h1v1h-1zM5 1h1v1h-1zM6 1h1v1h-1zM1 2h1v1h-1zM2 2h1v1h-1zM3 2h1v1h-1zM4 2h1v1h-1zM5 2h1v1h-1zM6 2h1v1h-1zM7 2h1v1h-1zM1 4h1v1h-1zM2 4h1v1h-1zM3 4h1v1h-1zM4 4h1v1h-1zM5 4h1v1h-1zM6 4h1v1h-1zM7 4h1v1h-1zM1 5h1v1h-1zM2 5h1v1h-1zM3 5h1v1h-1zM4 5h1v1h-1zM5 5h1v1h-1zM6 5h1v1h-1zM7 5h1v1h-1zM2 6h1v1h-1zM3 6h1v1h-1zM4 6h1v1h-1zM5 6h1v1h-1zM6 6h1v1h-1zM4 7h1v1h-1zM3 8h1v1h-1zM4 8h1v1h-1zM5 8h1v1h-1z"/></svg><span class="etiqueta">Decorar</span>
+        </button>
+        <button class="hud-btn hud-tenue" id="btn-datos" type="button" title="Códigos y copia">
+          <svg viewBox="0 0 9 9" aria-hidden="true"><path d="M0 0h1v1h-1zM1 0h1v1h-1zM2 0h1v1h-1zM3 0h1v1h-1zM4 0h1v1h-1zM5 0h1v1h-1zM6 0h1v1h-1zM0 1h1v1h-1zM3 1h1v1h-1zM6 1h1v1h-1zM7 1h1v1h-1zM0 2h1v1h-1zM3 2h1v1h-1zM6 2h1v1h-1zM7 2h1v1h-1zM8 2h1v1h-1zM0 3h1v1h-1zM8 3h1v1h-1zM0 4h1v1h-1zM2 4h1v1h-1zM3 4h1v1h-1zM4 4h1v1h-1zM5 4h1v1h-1zM6 4h1v1h-1zM8 4h1v1h-1zM0 5h1v1h-1zM2 5h1v1h-1zM6 5h1v1h-1zM8 5h1v1h-1zM0 6h1v1h-1zM2 6h1v1h-1zM6 6h1v1h-1zM8 6h1v1h-1zM0 7h1v1h-1zM2 7h1v1h-1zM3 7h1v1h-1zM4 7h1v1h-1zM5 7h1v1h-1zM6 7h1v1h-1zM8 7h1v1h-1zM0 8h1v1h-1zM1 8h1v1h-1zM2 8h1v1h-1zM3 8h1v1h-1zM4 8h1v1h-1zM5 8h1v1h-1zM6 8h1v1h-1zM7 8h1v1h-1zM8 8h1v1h-1z"/></svg><span class="etiqueta">Copia</span>
+        </button>
+      </nav>
+
+      <!-- La nota: una carta con un globo rojo en la esquina inferior derecha -->
+      <button class="hud-carta sin-leer" id="btn-nota" type="button" title="Leer la nota" aria-label="Leer la nota">
+        <svg viewBox="0 0 11 8" aria-hidden="true"><rect width="11" height="8" fill="#ded3c4"/><path fill="#5a3a44" d="M0 0h1v1h-1zM1 0h1v1h-1zM2 0h1v1h-1zM3 0h1v1h-1zM4 0h1v1h-1zM5 0h1v1h-1zM6 0h1v1h-1zM7 0h1v1h-1zM8 0h1v1h-1zM9 0h1v1h-1zM10 0h1v1h-1zM0 1h1v1h-1zM1 1h1v1h-1zM9 1h1v1h-1zM10 1h1v1h-1zM0 2h1v1h-1zM2 2h1v1h-1zM8 2h1v1h-1zM10 2h1v1h-1zM0 3h1v1h-1zM3 3h1v1h-1zM7 3h1v1h-1zM10 3h1v1h-1zM0 4h1v1h-1zM4 4h1v1h-1zM6 4h1v1h-1zM10 4h1v1h-1zM0 5h1v1h-1zM5 5h1v1h-1zM10 5h1v1h-1zM0 6h1v1h-1zM10 6h1v1h-1zM0 7h1v1h-1zM1 7h1v1h-1zM2 7h1v1h-1zM3 7h1v1h-1zM4 7h1v1h-1zM5 7h1v1h-1zM6 7h1v1h-1zM7 7h1v1h-1zM8 7h1v1h-1zM9 7h1v1h-1zM10 7h1v1h-1z"/></svg>
+        <span class="globo" aria-hidden="true">1</span>
+      </button>
+    </div>
   </div>
-
-  <p class="pista">Toca la tarta, un regalo, un farol o el gato.</p>
-
-  <nav class="acciones" aria-label="Acciones de la sala">
-    <button class="btn btn-principal" id="btn-regalo">Dejar un regalo</button>
-    <button class="btn" id="btn-tarta">Personalizar la tarta</button>
-    <button class="btn" id="btn-soplar">Soplar las velas</button>
-    <button class="btn" id="btn-sala">Decorar la sala</button>
-    <button class="btn" id="btn-lista">Ver los regalos (<span id="contador">0</span>)</button>
-    <button class="btn" id="btn-nota">Leer la nota</button>
-    <button class="btn btn-tenue" id="btn-datos">Códigos y copia</button>
-  </nav>
-
-  <footer class="pie">
-    <p>Todo lo que dejes aquí se guarda en este navegador. Para enviárselo a otra persona, usa
-      <button class="enlace" id="pie-datos" type="button">un código de regalo</button>.</p>
-  </footer>
 
 </div>
 
 <div class="aviso" id="aviso" role="status" aria-live="polite" hidden></div>
+
+
+<!-- ============ Ventana: bienvenida (sale al entrar) ============ -->
+<div class="fondo" id="modal-bienvenida" hidden>
+  <div class="ventana ventana-estrecha" role="dialog" aria-modal="true" aria-labelledby="saludo">
+    <div class="ventana-cuerpo cabecera bienvenida">
+      <p class="fecha" id="fecha"></p>
+      <h1 id="saludo">Feliz cumple</h1>
+      <p class="subtitulo" id="subtitulo"></p>
+      <p class="pista">Toca la tarta, los regalos, los faroles, el gato, el perro o a Drácula.</p>
+      <p class="pista pista-movil">Desliza la sala a los lados para verla entera.</p>
+    </div>
+    <div class="ventana-pie pie-bienvenida">
+      <button class="btn btn-principal" id="bienvenida-entrar" type="button" data-cerrar autofocus>Entrar en la sala</button>
+      <p class="pie">Todo lo que dejes aquí se guarda en este navegador. Para enviárselo a otra persona, usa
+        <button class="enlace" id="pie-datos" type="button">un código de regalo</button>.</p>
+    </div>
+  </div>
+</div>
 
 
 <!-- ============ Ventana: dejar un regalo ============ -->
@@ -139,18 +173,18 @@
         </fieldset>
 
         <fieldset class="grupo">
-          <legend>Adorno</legend>
+          <legend>Toppings (puedes elegir varios)</legend>
+          <div class="fichas" id="ch-toppings"></div>
+        </fieldset>
+
+        <fieldset class="grupo">
+          <legend>Adorno del frente</legend>
           <div class="fichas" id="ch-topper"></div>
         </fieldset>
 
         <label class="campo campo-fila">
           <span>Velas: <b id="velas-num">0</b></span>
           <input type="range" id="tarta-velas" min="0" max="12" step="1">
-        </label>
-
-        <label class="campo campo-fila">
-          <span>Polvo dorado</span>
-          <input type="checkbox" id="tarta-chispas">
         </label>
       </div>
     </div>

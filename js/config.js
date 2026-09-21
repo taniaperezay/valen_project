@@ -35,11 +35,14 @@ const CONFIG = {
 
   tartaInicial: {
     pisos: 3,             // 1, 2 o 3
-    bizcocho: "#3a2c3f",
-    cobertura: "#8c2f45",
-    chispas: true,        // polvo dorado
+    bizcocho: "#f7b8d0",  // rosa pastel
+    cobertura: "#c9b6f0", // lila pastel
     velas: 6,             // de 0 a 12
-    topper: "luna",       // "luna", "sakura", "corazon" o "ninguno"
+    topper: "calavera",   // "calavera", "corona", "luna", "sakura", "corazon" o "ninguno"
+    // Toppings que lleva al empezar. Se pueden combinar todos:
+    // "nata", "perlas", "chispas", "brillantes", "pinchos",
+    // "murcielagos", "cerezas", "carita"
+    toppings: ["nata", "perlas", "brillantes", "pinchos", "murcielagos"],
   },
 
   // --- Paletas que verán quienes envuelvan un regalo --------
@@ -51,9 +54,10 @@ const CONFIG = {
     "#c9a227", "#ded3c4", "#8c2f45", "#2b2736",
     "#b04058", "#5f8f7a", "#9a8fb0", "#a8742e",
   ],
+  // Pasteles kawaii para que la tarta destaque, más dos toques góticos
   coloresTarta: [
-    "#8c2f45", "#3a2c3f", "#4c3760", "#c9a227",
-    "#3f5f52", "#ded3c4", "#b04058", "#6d5a3f",
+    "#f7b8d0", "#ff9fc4", "#c9b6f0", "#b6d8f5", "#b8ecd8",
+    "#fbe9a6", "#fcc9b0", "#fdf3e7", "#2b2433", "#6d3a6b",
   ],
   coloresPared: ["#2e2a3d", "#332a2e", "#26303a", "#3a2f28", "#2b2b30"],
   coloresTatami: ["#6e6a42", "#4f5a48", "#6b5540", "#4a4560", "#5e4a4a"],
