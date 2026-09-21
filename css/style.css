@@ -774,3 +774,142 @@ input[type="checkbox"] { accent-color: var(--carmin-vivo); width: 22px; height: 
   .hud-carta.sin-leer, .flecha { animation: none; }
   .btn:hover, .hud-btn:hover, .regalo-tarjeta:hover { transform: none; }
 }
+
+/* ===========================================================
+   POPUPS KAWAII — pega este bloque al FINAL de style.css.
+   Para cambiar los colores, toca solo las variables de abajo.
+   =========================================================== */
+
+.fondo {
+  --pop-fondo: #fde6ef;        /* fondo de la ventana (rosa muy claro) */
+  --pop-cabecera: #e6d6fb;     /* franja del título (lila) */
+  --pop-pie: #f9d3e2;          /* franja de los botones (rosa) */
+  --pop-texto: #4a2a45;        /* texto principal (ciruela) */
+  --pop-tenue: #8a6583;        /* textos secundarios */
+  --pop-borde: #3a2238;        /* bordes y sombras */
+  --pop-acento: #ff8fbd;       /* botón principal y selección */
+  --pop-acento-vivo: #ff6fa8;
+  --pop-control: #fff7fb;      /* casillas, fichas y cajas de texto */
+
+  background: rgba(40, 18, 38, 0.72);
+}
+
+.fondo .ventana {
+  color: var(--pop-texto);
+  background:
+    radial-gradient(rgba(255, 255, 255, 0.55) 1px, transparent 1.5px) 0 0 / 14px 14px,
+    var(--pop-fondo);
+  border: 3px solid var(--pop-borde);
+  box-shadow: 6px 6px 0 var(--pop-borde), inset 0 0 0 3px #fff;
+}
+
+.fondo .ventana-cabecera {
+  background: var(--pop-cabecera);
+  border-bottom: 3px solid var(--pop-borde);
+}
+
+.fondo .ventana-cabecera h2 { color: var(--pop-texto); }
+.fondo .ventana-cabecera h2::before { content: "♡ "; color: var(--pop-acento-vivo); }
+
+.fondo .cerrar { color: var(--pop-tenue); }
+.fondo .cerrar:hover { color: var(--pop-acento-vivo); }
+
+.fondo .ventana-pie {
+  background: var(--pop-pie);
+  border-top: 3px solid var(--pop-borde);
+}
+
+/* Botones */
+.fondo .btn {
+  color: var(--pop-texto);
+  background: var(--pop-control);
+  border: 2px solid var(--pop-borde);
+  box-shadow: 3px 3px 0 var(--pop-borde);
+}
+.fondo .btn:hover {
+  color: var(--pop-texto);
+  border-color: var(--pop-borde);
+  background: #fff;
+  box-shadow: 1px 1px 0 var(--pop-borde);
+}
+.fondo .btn-principal { background: var(--pop-acento); color: #3a1230; }
+.fondo .btn-principal:hover { background: var(--pop-acento-vivo); color: #3a1230; }
+.fondo .btn-tenue { background: #f3e9f7; color: var(--pop-tenue); }
+.fondo .btn-peligro { background: #ffb3b8; color: #5a1420; }
+
+/* Textos */
+.fondo .campo > span,
+.fondo .grupo legend,
+.fondo .previa-pie,
+.fondo .cuando,
+.fondo .ayuda,
+.fondo .vacio,
+.fondo .subtitulo,
+.fondo .pista,
+.fondo .pie { color: var(--pop-tenue); }
+
+.fondo .de,
+.fondo .fecha { color: #d6497f; }
+.fondo .bloque h3,
+.fondo .cabecera h1 { color: var(--pop-texto); text-shadow: 2px 2px 0 #fff; }
+.fondo .cabecera h1::after {
+  background: linear-gradient(90deg, transparent, var(--pop-acento-vivo), transparent);
+}
+.fondo .enlace { color: #d6497f; }
+
+.fondo .tarjeta-regalo,
+.fondo .bloque + .bloque { border-color: rgba(58, 34, 56, 0.2); }
+
+/* Cajas de texto */
+.fondo input[type="text"],
+.fondo textarea {
+  color: var(--pop-texto);
+  background: var(--pop-control);
+  border: 2px solid var(--pop-borde);
+  box-shadow: none;
+}
+.fondo input[type="text"]::placeholder,
+.fondo textarea::placeholder { color: #b596ae; }
+.fondo input[type="text"]:focus,
+.fondo textarea:focus { border-color: var(--pop-acento-vivo); }
+
+.fondo input[type="range"],
+.fondo input[type="checkbox"] { accent-color: var(--pop-acento-vivo); }
+
+/* Fichas (opciones) y muestras de color */
+.fondo .ficha {
+  color: var(--pop-texto);
+  background: var(--pop-control);
+  border: 2px solid var(--pop-borde);
+  box-shadow: 2px 2px 0 var(--pop-borde);
+}
+.fondo .ficha:hover { color: #d6497f; }
+.fondo .ficha[aria-pressed="true"] {
+  color: #3a1230;
+  background: var(--pop-acento);
+  border-color: var(--pop-borde);
+}
+
+.fondo .muestra { border-color: var(--pop-borde); box-shadow: 2px 2px 0 var(--pop-borde); }
+.fondo .muestra[aria-pressed="true"] { border-color: #fff; outline: 2px solid var(--pop-borde); }
+
+/* Las vistas previas se quedan oscuras para que la tarta y los regalos luzcan */
+.fondo .previa,
+.fondo .regalo-tarjeta {
+  background: #3a2540;
+  border: 2px solid var(--pop-borde);
+  box-shadow: 2px 2px 0 var(--pop-borde);
+}
+.fondo .previa-pie { color: #e8cfe2; }
+.fondo .regalo-tarjeta span { color: #fde6ef; }
+
+/* El aviso flotante, a juego */
+.aviso {
+  color: #4a2a45;
+  background: #fde6ef;
+  border: 2px solid #3a2238;
+  border-left: 4px solid #ff6fa8;
+  box-shadow: 3px 3px 0 #3a2238;
+}
+
+.fondo :focus-visible { outline-color: #ff6fa8; }
