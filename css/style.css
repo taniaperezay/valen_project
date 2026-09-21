@@ -128,6 +128,65 @@ body {
   background: var(--panel);
 }
 
+/* ---------- cuadro de diálogo del anfitrión ---------- */
+
+.dialogo {
+  position: absolute;
+  left: 50%;
+  bottom: 18px;
+  z-index: 8;
+  width: min(640px, calc(100% - 24px));
+  min-height: 92px;
+  padding: 18px 18px 16px;
+  transform: translateX(-50%);
+  color: #4a2a45;
+  background:
+    radial-gradient(rgba(255, 255, 255, 0.55) 1px, transparent 1.5px) 0 0 / 14px 14px,
+    #fde6ef;
+  border: 3px solid #3a2238;
+  box-shadow: 5px 5px 0 #3a2238, inset 0 0 0 3px #fff;
+  cursor: pointer;
+}
+
+.dialogo[hidden] { display: none; }
+
+/* Etiqueta con el nombre de quien habla */
+.dialogo-nombre {
+  position: absolute;
+  top: -16px;
+  left: 14px;
+  margin: 0;
+  padding: 2px 12px;
+  font-family: var(--texto);
+  font-size: 15px;
+  line-height: 1.5;
+  color: #3a1230;
+  background: #ff8fbd;
+  border: 3px solid #3a2238;
+}
+
+.dialogo-texto {
+  margin: 0;
+  font-size: 17px;
+  line-height: 1.55;
+  white-space: pre-wrap;
+}
+
+/* Triangulito que parpadea: "toca para seguir" */
+.dialogo-seguir {
+  position: absolute;
+  right: 12px;
+  bottom: 6px;
+  font-size: 12px;
+  color: #d6497f;
+  animation: parpadeo 1s steps(1) infinite;
+}
+
+@keyframes parpadeo {
+  0%, 49% { opacity: 1; }
+  50%, 100% { opacity: 0; }
+}
+
 /* ---------- flechas para recorrer la sala ---------- */
 
 .flecha {
@@ -746,8 +805,15 @@ input[type="checkbox"] { accent-color: var(--carmin-vivo); width: 22px; height: 
   .pista-movil { display: block; }
 }
 
+@media (max-width: 560px) {
+  .dialogo { bottom: 70px; padding: 16px 14px 14px; min-height: 80px; }
+  .dialogo-texto { font-size: 16px; }
+}
+
 /* En horizontal hay poco alto: botones y flechas algo más pequeños */
 @media (max-height: 540px) and (orientation: landscape) {
+  .dialogo { bottom: 8px; min-height: 0; padding: 14px 14px 12px; }
+  .dialogo-texto { font-size: 15px; }
   .hud { top: 6px; }
   .hud-izq { left: 6px; }
   .hud-der { right: 6px; }
@@ -771,7 +837,7 @@ input[type="checkbox"] { accent-color: var(--carmin-vivo); width: 22px; height: 
 
 @media (prefers-reduced-motion: reduce) {
   * { transition: none !important; }
-  .hud-carta.sin-leer, .flecha { animation: none; }
+  .hud-carta.sin-leer, .flecha, .dialogo-seguir { animation: none; }
   .btn:hover, .hud-btn:hover, .regalo-tarjeta:hover { transform: none; }
 }
 

@@ -57,7 +57,9 @@
     el.textContent = texto;
     el.hidden = false;
     clearTimeout(temporizadorAviso);
-    temporizadorAviso = setTimeout(function () { el.hidden = true; }, 3400);
+    // Los mensajes largos se quedan más rato en pantalla
+    const tiempo = Math.max(3400, String(texto).length * 70);
+    temporizadorAviso = setTimeout(function () { el.hidden = true; }, tiempo);
   }
 
   /* ---------- validación ---------- */
@@ -92,6 +94,9 @@
       patron: deLista(g.patron, CONFIG.patrones, "liso"),
       lazo: deLista(g.lazo, CONFIG.lazos, "mizuhiki"),
       tamano: deLista(g.tamano, CONFIG.tamanos, "mediano"),
+      // Forma del regalo: una caja envuelta, un pájaro de barro o la cajita de los deseos
+      forma: ["pajaro", "deseo"].indexOf(g.forma) >= 0 ? g.forma : "caja",
+      nombre: typeof g.nombre === "string" ? g.nombre.slice(0, 40) : "",
       fecha: typeof g.fecha === "number" ? g.fecha : Date.now(),
     };
   }
@@ -430,6 +435,58 @@
 
   /* ---------- lista y detalle ---------- */
 
+  /* ---------- el anfitrión habla ---------- */
+
+  const MENSAJE_ANFITRION =
+    "Hola, Valen. Soy Bruno y vengo en representación de tu mejor amiga, " +
+    "que me ha pedido que te enseñe los regalos. Pasa, pasa.";
+
+  let escribiendo = null;       // temporizador del efecto máquina de escribir
+  let textoCompleto = "";
+
+  function mensajeAnfitrion() {
+    return CONFIG.mensajeAnfitrion || MENSAJE_ANFITRION;
+  }
+
+  // Muestra un cuadro de diálogo de juego y escribe el texto letra a letra
+  function hablar(nombre, texto) {
+    const caja = $("#dialogo"), destino = $("#dialogo-texto");
+    $("#dialogo-nombre").textContent = nombre;
+    textoCompleto = texto;
+    caja.hidden = false;
+    clearInterval(escribiendo);
+    const sinMov = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    if (sinMov) { destino.textContent = texto; escribiendo = null; return; }
+    let n = 0;
+    destino.textContent = "";
+    escribiendo = setInterval(function () {
+      n += 1;
+      destino.textContent = texto.slice(0, n);
+      if (n >= texto.length) { clearInterval(escribiendo); escribiendo = null; }
+    }, 28);
+  }
+
+  function callar() {
+    clearInterval(escribiendo);
+    escribiendo = null;
+    $("#dialogo").hidden = true;
+  }
+
+  // Tocar el cuadro: si aún está escribiendo, termina; si no, se cierra
+  function tocarDialogo() {
+    if (escribiendo) {
+      clearInterval(escribiendo);
+      escribiendo = null;
+      $("#dialogo-texto").textContent = textoCompleto;
+    } else {
+      callar();
+    }
+  }
+
+  function hablaAnfitrion() {
+    hablar(CONFIG.nombreAnfitrion || "Bruno", mensajeAnfitrion());
+  }
+
   /* ---------- las dos salas ---------- */
 
   function enSalaRegalos() { return Room.escena() === "regalos"; }
@@ -440,10 +497,15 @@
   function cambiarSala(nombre, sinAviso) {
     Room.irA(nombre);
     // Al llegar, la vista se coloca junto a la puerta por la que se entra
-    Room.enfocar(nombre === "regalos" ? 110 : 190);
+    Room.enfocar(nombre === "regalos" ? 82 : 190);   // en la de regalos, con Bruno a la vista
     actualizarContador();
     if (sinAviso) return;
+    callar();
     if (nombre === "regalos") {
+      // Al entrar, el anfitrión da la bienvenida en tu nombre
+      $("#aviso").hidden = true;
+      setTimeout(hablaAnfitrion, 450);
+      return;
       aviso(regalosFijos.length
         ? "Esta es la sala de los regalos. Aquí te esperaban " + regalosFijos.length +
           (regalosFijos.length === 1 ? " regalo." : " regalos.")
@@ -495,6 +557,7 @@
     if (!g) return;
     detalleIndice = indice;
     detalleFijo = !!fijo;
+    $("#t-detalle").textContent = g.nombre || "Un regalo";
     $("#detalle-de").textContent = "De " + g.de;
     $("#detalle-cuando").textContent = fijo
       ? "Te esperaba en la sala de los regalos"
@@ -588,6 +651,9 @@
       abrirDetalle(zona.i, false);
     } else if (zona.id === "regalo-fijo") {
       abrirDetalle(zona.i, true);
+    } else if (zona.id === "anfitrion") {
+      hablaAnfitrion();
+      Room.confeti(zona.x + zona.w / 2, zona.y + 10, 14);
     } else if (zona.id === "puerta") {
       cambiarSala("regalos");
     } else if (zona.id === "puerta-volver") {
@@ -714,6 +780,7 @@
     $("#btn-sala").addEventListener("click", abrirSala);
     $("#btn-lista").addEventListener("click", abrirLista);
     $("#btn-nota").addEventListener("click", abrirNota);
+    $("#dialogo").addEventListener("click", tocarDialogo);
     $("#btn-datos").addEventListener("click", abrirDatos);
     $("#pie-datos").addEventListener("click", function () { cerrar(); abrirDatos(); });
     $("#btn-bienvenida").addEventListener("click", function () { abrir("modal-bienvenida"); });
@@ -769,6 +836,7 @@
 
     document.addEventListener("keydown", function (ev) {
       if (ev.key === "Escape" && hayVentanaAbierta()) cerrar();
+      else if (ev.key === "Escape" && !$("#dialogo").hidden) callar();
     });
   }
 

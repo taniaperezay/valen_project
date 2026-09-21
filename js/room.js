@@ -988,6 +988,219 @@ const Room = (function () {
   }
 
 
+  /* ---------- regalos con forma de objeto ---------- */
+
+  // Medidas de un regalo según su forma (caja, pájaro de barro o deseo)
+  function medidas(g) {
+    if (g.forma === "pajaro") return { w: 15, h: 13 };
+    if (g.forma === "deseo") return { w: 30, h: 11 };
+    return TAMANOS[g.tamano] || TAMANOS.mediano;
+  }
+
+  // Pájaro de barro cocido, con dibujitos pintados en crema
+  function dibujarPajaro(x, abajo, conSombra) {
+    const barro = "#b8643e", claro = "#d98a5e", hondo = "#8f4a2c", pintura = "#f1d9b8";
+    if (conSombra) px(x, abajo, 15, 2, "rgba(10,6,14,0.35)");
+
+    // Peana
+    px(x + 3, abajo - 2, 9, 2, hondo);
+    px(x + 3, abajo - 2, 9, 1, barro);
+
+    // Cola levantada
+    px(x, abajo - 9, 2, 2, barro);
+    px(x + 1, abajo - 8, 3, 2, barro);
+    px(x, abajo - 9, 1, 1, claro);
+
+    // Cuerpo
+    elipse(x + 7, abajo - 6, 5, 4, barro);
+    px(x + 3, abajo - 4, 9, 2, hondo);
+    px(x + 5, abajo - 9, 3, 1, claro);
+
+    // Cabeza, pico y ojo
+    circulo(x + 11, abajo - 9, 3, barro);
+    px(x + 10, abajo - 12, 2, 1, claro);
+    px(x + 14, abajo - 9, 1, 1, "#7a3a22");
+    px(x + 15, abajo - 9, 1, 1, "#7a3a22");
+    px(x + 12, abajo - 10, 1, 1, "#2a1a14");
+
+    // Ala pintada: rayitas y puntos
+    px(x + 5, abajo - 7, 4, 1, pintura);
+    px(x + 6, abajo - 6, 4, 1, pintura);
+    px(x + 4, abajo - 5, 1, 1, pintura);
+    px(x + 9, abajo - 5, 1, 1, pintura);
+    px(x + 11, abajo - 7, 1, 1, pintura);
+
+    // Agujerito de silbato
+    px(x + 8, abajo - 3, 1, 1, "#5a2a18");
+  }
+
+  // Cajita alargada de cartón kraft con una rama de los deseos asomando
+  function dibujarDeseo(x, abajo, conSombra) {
+    const kraft = "#ecd3b6", kraftHondo = "#cfae8c", tinta = "#a8326e", rama = "#3b2a30";
+    const y = abajo - 8;
+    if (conSombra) px(x + 2, abajo, 28, 2, "rgba(10,6,14,0.35)");
+
+    // Rama retorcida saliendo por el extremo izquierdo, con brillos
+    // para que se vea sobre el fondo oscuro
+    const ramaClara = "#b08c96";
+    px(x - 2, y + 4, 12, 2, rama);
+    px(x - 3, y + 3, 1, 1, rama);
+    px(x - 2, y + 4, 1, 1, ramaClara);
+    px(x + 1, y + 3, 2, 1, rama);
+    px(x + 5, y + 6, 2, 1, rama);
+    px(x - 1, y + 5, 1, 1, rama);
+    px(x + 7, y + 3, 1, 1, rama);
+    px(x, y + 4, 1, 1, ramaClara);
+    px(x + 2, y + 3, 1, 1, ramaClara);
+    px(x + 4, y + 4, 2, 1, ramaClara);
+    px(x + 7, y + 3, 1, 1, ramaClara);
+    px(x + 5, y + 6, 1, 1, "#5a4048");
+
+    // Tapa triangular negra, suelta al lado
+    px(x + 1, abajo - 2, 5, 2, "#1b1520");
+    px(x + 2, abajo - 3, 3, 1, "#1b1520");
+    px(x + 1, abajo - 1, 5, 1, "#c98a72");
+
+    // Caja: cara de arriba, cara de delante y el extremo en triángulo
+    px(x + 8, y - 2, 21, 2, "#f6e4d0");
+    px(x + 6, y, 24, 8, kraft);
+    px(x + 6, y + 7, 24, 1, kraftHondo);
+    px(x + 29, y - 1, 1, 9, kraftHondo);
+    px(x + 6, y, 2, 8, kraftHondo);
+    px(x + 7, y - 1, 1, 1, kraftHondo);
+
+    // Estampado en magenta: una estela de estrellitas y una etiqueta
+    px(x + 10, y + 5, 4, 1, tinta);
+    px(x + 13, y + 4, 4, 1, tinta);
+    px(x + 16, y + 3, 3, 1, tinta);
+    px(x + 11, y + 2, 1, 1, tinta);
+    px(x + 15, y + 1, 1, 1, tinta);
+    px(x + 19, y + 1, 1, 1, tinta);
+    px(x + 18, y + 5, 1, 1, tinta);
+    px(x + 22, y + 1, 6, 3, tinta);
+    px(x + 23, y + 2, 4, 1, "#f6d2e2");
+    px(x + 22, y + 5, 6, 1, tinta);
+  }
+
+  /* ---------- el anfitrión: Bruno ---------- */
+
+  // Bruno, un chico ochentero inventado, dibujado como un mapa de píxeles:
+  // cada letra es un color (el punto es transparente).
+  const BRUNO = [
+    "......KKKZKKK..........",
+    "....KKKHHKHHKKK........",
+    "...KKHHKKHKKKHKK.......",
+    "...KHKKHKKHKHKHKK......",
+    "..KHKKHKKKKHKHKHK......",
+    "..KHKKKHKssKKKHKKK.....",
+    "..KKKKSKSSSsKHKKHK.....",
+    "...KtSKSSSSSsKKKKK.....",
+    "....KKSSKKKSSKKKHK.....",
+    "....trsSrrrKSKSKK......",
+    "....tKsSSKWSSKSKK......",
+    "....tSsSSSSSSSSKK......",
+    "....tSSSSSSSStKK.......",
+    "....tStttSSSttK........",
+    ".....sSSSSStst.........",
+    "......tttttssqO........",
+    "......OOpssspqJOO......",
+    ".....OJPpSSpPqJjjO.....",
+    "....OJjPpSpPqJJjJJO....",
+    "...ZjJjppppqJJJjJjJO...",
+    "...OJjOpPpPqjjjJjJJjO..",
+    "..OJJJZPPpPOjJJJJJJJO..",
+    "..OJjJOPPpPOJJJjJJJJO..",
+    "..OJOjOPPpPOjjjOJJJJjO.",
+    "..OJOgZPPpPOjgJOjJJJJO.",
+    ".OJJOjOPPpPOjjjjOJJJJO.",
+    ".OJjOjOPpPPOjJJjOjJJJJO",
+    ".OJOjJOPpPPOJjjJjOjjJJO",
+    "OJJOJJZPpPPOJjJjjOJJJJO",
+    "OJjOJOPPpPPOJjJjOJJJJjO",
+    "OJjOJOPPpPPOJJjOjJJJJO.",
+    "OJjOgOPPpPPOJJOjJJJJjO.",
+    "OJjOJOPPpPPOJOJjJJJjO..",
+    "OjjOJOOOOOOOJOJJjJJjO..",
+    "OJjOJOBbbBBOOsOJJjjO...",
+    "OOOOOOdddddOOSSOJJO....",
+    "tssOddDdDdDDdOSSOO.....",
+    "tSsOdDDdDdDDDdOOdO.....",
+    ".sSOdDDdDdDDDDdddO.....",
+    "..tODDDDOdDDDDDDdO.....",
+    "...ODDDDdODDDDDDdO.....",
+    "...ZDDDDddODDDDDdO.....",
+    "...ZDDDDddzDDDDDdO.....",
+    "...ZDDDDddzDDDDDdO.....",
+    "...ZDDDDddzDDDDDdO.....",
+    "...ZDDDDddOODDDDdO.....",
+    "....ODDDDdOODDDDdO.....",
+    "....ODDDddO.ODDddO.....",
+    "....ODDDddO.ODDDddO....",
+    "....ODDDddO.ODDDDdO....",
+    "....ODDDddO.ODDDDdO....",
+    "....ODDDddO.ODDDDdO....",
+    "....ODDDddO.ODDDDdO....",
+    "....ODddDdO.ODDDDdO....",
+    "....ODDDddO.ODdddDO....",
+    "....zzzdddO.OdDDDdO....",
+    "...KZZZzzz...zzzddO....",
+    ".KZZZZZZZK..KZZZzzK....",
+    "KZZZZZZKKK.KZZZZZZK....",
+    "KKKKKKK....KZZZZZKK....",
+    "...........KKKKKK......",
+  ];
+
+  const COLORES_BRUNO = {
+    B: "#563116",   // cinturón,
+    D: "#2870b8",   // vaqueros,
+    H: "#232323",   // brillo del pelo,
+    J: "#839fb4",   // cazadora vaquera,
+    K: "#000000",   // pelo y contorno,
+    O: "#2d2826",   // contorno de la ropa,
+    P: "#e06884",   // camisa rosa,
+    S: "#f0bc80",   // piel,
+    W: "#f8f8f7",   // blanco de los ojos,
+    Z: "#292524",   // zapatos,
+    b: "#94908c",   // hebilla,
+    d: "#1e4778",   // sombra de los vaqueros,
+    g: "#aba8a6",   // botones y remaches,
+    j: "#4f687f",   // sombra de la cazadora,
+    p: "#88294c",   // sombra de la camisa,
+    q: "#5e3746",   // cuello de la camisa,
+    r: "#a86d30",   // piel más oscura,
+    s: "#c68843",   // piel en sombra,
+    t: "#86551c",   // sombra de la piel,
+    z: "#211c1c",   // sombra de los zapatos
+  };
+
+  function anfitrion() {
+    const x = 57, abajo = 150;
+    const y = abajo - BRUNO.length;
+
+    // Sombra en el suelo
+    elipse(x + 10, abajo, 11, 2, "rgba(10,6,14,0.4)");
+
+    // El muñeco, píxel a píxel, tal cual
+    for (let fy = 0; fy < BRUNO.length; fy++) {
+      const fila = BRUNO[fy];
+      for (let fx = 0; fx < fila.length; fx++) {
+        const col = COLORES_BRUNO[fila[fx]];
+        if (col) px(x + fx, y + fy, 1, 1, col);
+      }
+    }
+
+    // Bocadillo con "…" para que se note que tiene algo que decir
+    const bx = x + 20, by = y - 6;
+    px(bx, by, 11, 6, "#fde6ef");
+    px(bx + 1, by - 1, 9, 1, "#fde6ef");
+    px(bx + 1, by + 6, 9, 1, "#fde6ef");
+    px(bx - 1, by + 6, 2, 2, "#fde6ef");
+    const puntos = sinMovimiento ? 3 : 1 + Math.floor(frame / 20) % 3;
+    for (let k = 0; k < puntos; k++) px(bx + 2 + k * 3, by + 2, 2, 2, "#8c2f45");
+
+    zonas.push({ id: "anfitrion", x: x - 1, y: by - 2, w: 34, h: abajo - by + 4 });
+  }
+
   /* ---------- la sala de los regalos ---------- */
 
   // Papel pintado vintage: rayas y rombos de damasco
@@ -1089,15 +1302,15 @@ const Room = (function () {
   // Filas donde se colocan los regalos de esta sala
   const FILAS_FIJOS = [
     { y: 96, x0: 112, x1: 236 },     // encima del aparador
-    { y: 140, x0: 62, x1: 252 },
-    { y: 156, x0: 56, x1: 254 },
+    { y: 140, x0: 98, x1: 252 },
+    { y: 156, x0: 86, x1: 254 },
   ];
 
   function colocarEnFilas(regalos, filas) {
     const res = [];
     let fila = 0, x = filas[0].x0, pasada = 0;
     for (let i = 0; i < regalos.length; i++) {
-      const t = TAMANOS[regalos[i].tamano] || TAMANOS.mediano;
+      const t = medidas(regalos[i]);
       let f = filas[fila];
       if (x + t.w > f.x1) {
         fila++;
@@ -1148,6 +1361,9 @@ const Room = (function () {
     luzRosa(true);
     // Una tira LED más sobre el espejo
     tiraLed(150, 26, 48, true);
+
+    // Bruno va después de la luz, para que sus colores se vean tal cual
+    anfitrion();
   }
 
   /* ---------- el tatami y la mesa ---------- */
@@ -1544,6 +1760,8 @@ const Room = (function () {
   }
 
   function dibujarRegalo(g, x, abajo, conSombra) {
+    if (g.forma === "pajaro") return dibujarPajaro(x, abajo, conSombra);
+    if (g.forma === "deseo") return dibujarDeseo(x, abajo, conSombra);
     const t = TAMANOS[g.tamano] || TAMANOS.mediano;
     const y = abajo - t.h;
     const caja = g.caja, cinta = g.cinta;
@@ -1593,7 +1811,7 @@ const Room = (function () {
 
     for (let i = 0; i < regalos.length; i++) {
       const lado = lados[i % 2];
-      const t = TAMANOS[regalos[i].tamano] || TAMANOS.mediano;
+      const t = medidas(regalos[i]);
       let f = lado.filas[lado.fila];
 
       if (lado.x + t.w > f.x1) {
@@ -2157,7 +2375,7 @@ const Room = (function () {
       c = ctx2;
       ctx2.imageSmoothingEnabled = false;
       ctx2.clearRect(0, 0, ctx2.canvas.width, ctx2.canvas.height);
-      const t = TAMANOS[g.tamano] || TAMANOS.mediano;
+      const t = medidas(g);
       const x = Math.floor((ctx2.canvas.width - t.w) / 2);
       const abajo = Math.floor(ctx2.canvas.height / 2 + t.h / 2) + 4;
       dibujarRegalo(g, x, abajo, false);

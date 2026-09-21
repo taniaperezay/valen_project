@@ -45,6 +45,14 @@ const CONFIG = {
     toppings: ["nata", "perlas", "brillantes", "pinchos", "murcielagos"],
   },
 
+  // --- La sala de los regalos --------------------------------
+  // Lo que dice Manolo, el chico que te recibe al entrar (y cada vez
+  // que lo tocas). Habla en nombre de quien hizo la sala.
+  nombreAnfitrion: "Manolo",
+  mensajeAnfitrion:
+    "Hola, Valen. Soy Manolo y vengo en representación de la Bloody, " +
+    "que me ha pedido que te enseñe los regalos. Pasa, pasa.",
+
   // --- Regalos de la sala de los regalos ---------------------
   // Letrero de la puerta que lleva a esta sala (sin tildes; si es
   // largo se parte solo en dos líneas)
@@ -72,6 +80,20 @@ const CONFIG = {
       de: "Max",
       mensaje: "¡Guau! Te regalo mi pelota favorita. Casi no está mordida.",
       caja: "#ded3c4", cinta: "#5f8f7a", patron: "rayas", lazo: "sakura", tamano: "pequeno",
+    },
+    {
+      // Un regalo con forma propia: forma "pajaro" dibuja un pájaro de barro
+      forma: "pajaro",
+      nombre: "Un pájaro de barro",
+      de: "Tu mejor amiga",
+      mensaje: "Ni una página en blanco más.",
+    },
+    {
+      // forma "deseo": una cajita alargada con una rama de los deseos
+      forma: "deseo",
+      nombre: "La rama de los deseos",
+      de: "Tu mejor amiga",
+      mensaje: "Escribe aquí el mensaje de la rama de los deseos.",
     },
     {
       de: "El conde Drácula",
