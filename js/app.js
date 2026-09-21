@@ -646,6 +646,7 @@
     $("#flecha-der").addEventListener("click", function () { moverSala(1); });
     $("#visor").addEventListener("scroll", actualizarFlechas, { passive: true });
     window.addEventListener("resize", function () { setTimeout(actualizarFlechas, 0); });
+    window.addEventListener("sala-ajustada", actualizarFlechas);
 
     // En el ordenador también se puede mover con las flechas del teclado
     document.addEventListener("keydown", function (ev) {

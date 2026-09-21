@@ -1621,33 +1621,51 @@ const Room = (function () {
   // Bájalo (por ejemplo a 0.8) si quieres ver más sala a lo ancho.
   const ZOOM_VERTICAL = 1;
 
-  let altoBase = 0;
-  let anchoVentana = 0;
+  // Por debajo de este alto (móvil en horizontal) la sala también ocupa
+  // toda la pantalla, sin marco.
+  const ALTO_COMPACTO = 540;
+
   let anchoAnterior = 0;
+  let sonda = null;
+
+  // Alto útil de la pantalla. Se mide con 100svh, que no cambia cuando la
+  // barra del navegador del móvil aparece o desaparece al hacer scroll.
+  function altoPantalla() {
+    if (!sonda) {
+      sonda = document.createElement("div");
+      sonda.setAttribute("aria-hidden", "true");
+      sonda.style.cssText = "position:fixed;top:0;left:0;width:0;visibility:hidden;" +
+        "pointer-events:none;height:100vh;height:100svh;";
+      document.body.appendChild(sonda);
+    }
+    return sonda.offsetHeight || window.innerHeight;
+  }
 
   function ajustarEscala() {
     const visor = canvas.parentElement;
     const pantalla = visor.parentElement;
     const escenario = pantalla.parentElement;
 
-    if (window.innerWidth !== anchoVentana || !altoBase) {
-      anchoVentana = window.innerWidth;
-      altoBase = window.innerHeight;
-    }
+    const anchoPantalla = window.innerWidth;
+    const alto = altoPantalla();
 
     const e = getComputedStyle(pantalla);
     const bordes = parseFloat(e.paddingLeft) + parseFloat(e.paddingRight) +
                    parseFloat(e.borderLeftWidth) + parseFloat(e.borderRightWidth);
     const disponible = escenario.clientWidth - bordes;
-    const vertical = altoBase > anchoVentana;
+    const vertical = alto > anchoPantalla;
+    const compacto = !vertical && alto <= ALTO_COMPACTO;
 
     let escala;
     if (vertical) {
       // En vertical (móvil o tablet) la sala ocupa toda la pantalla de alto
       // y se recorre a los lados con las flechas o deslizando, como un juego.
-      escala = Math.max(disponible / W, (altoBase * ZOOM_VERTICAL) / H);
+      escala = Math.max(disponible / W, (alto * ZOOM_VERTICAL) / H);
+    } else if (compacto) {
+      // Móvil en horizontal: la sala ocupa todo el alto de la pantalla
+      escala = alto / H;
     } else {
-      escala = Math.min(disponible / W, (altoBase * 0.9) / H);
+      escala = Math.min(disponible / W, (alto * 0.9) / H);
       if (escala >= 5) escala = Math.floor(escala);
     }
     escala = Math.max(escala, 0.5);
@@ -1663,6 +1681,9 @@ const Room = (function () {
     }
 
     ajustarHud(pantalla);
+
+    // Avisa a app.js para que muestre u oculte las flechas
+    window.dispatchEvent(new Event("sala-ajustada"));
   }
 
   // Los textos de los botones solo se muestran si caben sin solaparse

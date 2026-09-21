@@ -122,6 +122,7 @@ body {
 
 #sala {
   display: block;
+  margin: 0 auto;              /* centrada si sobra sitio a los lados */
   image-rendering: pixelated;
   image-rendering: crisp-edges;
   background: var(--panel);
@@ -712,9 +713,10 @@ input[type="checkbox"] { accent-color: var(--carmin-vivo); width: 22px; height: 
   .hud-carta svg { width: 28px; height: 20px; }
 }
 
-/* ---------- en vertical: la sala a pantalla completa, como un juego ---------- */
+/* ---------- en vertical y en móvil horizontal: la sala a pantalla
+   completa, como un juego ---------- */
 
-@media (orientation: portrait) {
+@media (orientation: portrait), (max-height: 540px) {
   .marco { padding: 0; max-width: none; }
 
   .pantalla {
@@ -722,13 +724,12 @@ input[type="checkbox"] { accent-color: var(--carmin-vivo); width: 22px; height: 
     padding: 0;
     border: none;
     box-shadow: none;
+    background: var(--tinta);
   }
 
   /* Se recorre con las flechas o deslizando, sin barra de scroll */
   .visor { scrollbar-width: none; }
   .visor::-webkit-scrollbar { display: none; }
-
-  .pista-movil { display: block; }
 
   .hud { top: 10px; gap: 5px; }
   .hud-izq { left: 10px; }
@@ -739,6 +740,23 @@ input[type="checkbox"] { accent-color: var(--carmin-vivo); width: 22px; height: 
 
   /* El aviso sube un poco para no tapar la carta */
   .aviso { bottom: 84px; }
+}
+
+@media (orientation: portrait) {
+  .pista-movil { display: block; }
+}
+
+/* En horizontal hay poco alto: botones y flechas algo más pequeños */
+@media (max-height: 540px) and (orientation: landscape) {
+  .hud { top: 6px; }
+  .hud-izq { left: 6px; }
+  .hud-der { right: 6px; }
+  .hud-btn { padding: 6px; }
+  .hud-btn svg { width: 15px; height: 15px; }
+  .flecha { width: 36px; height: 52px; }
+  .hud-carta { right: 8px; bottom: 8px; padding: 5px 6px; }
+  .hud-carta svg { width: 24px; height: 18px; }
+  .aviso { bottom: 12px; }
 }
 
 @media (max-width: 560px) {
