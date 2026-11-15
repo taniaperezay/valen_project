@@ -52,7 +52,7 @@
         <button class="hud-btn" id="btn-sala" type="button" title="Decorar la sala">
           <svg viewBox="0 0 9 9" aria-hidden="true"><path d="M4 0h1v1h-1zM2 1h1v1h-1zM3 1h1v1h-1zM4 1h1v1h-1zM5 1h1v1h-1zM6 1h1v1h-1zM1 2h1v1h-1zM2 2h1v1h-1zM3 2h1v1h-1zM4 2h1v1h-1zM5 2h1v1h-1zM6 2h1v1h-1zM7 2h1v1h-1zM1 4h1v1h-1zM2 4h1v1h-1zM3 4h1v1h-1zM4 4h1v1h-1zM5 4h1v1h-1zM6 4h1v1h-1zM7 4h1v1h-1zM1 5h1v1h-1zM2 5h1v1h-1zM3 5h1v1h-1zM4 5h1v1h-1zM5 5h1v1h-1zM6 5h1v1h-1zM7 5h1v1h-1zM2 6h1v1h-1zM3 6h1v1h-1zM4 6h1v1h-1zM5 6h1v1h-1zM6 6h1v1h-1zM4 7h1v1h-1zM3 8h1v1h-1zM4 8h1v1h-1zM5 8h1v1h-1z"/></svg><span class="etiqueta">Decorar</span>
         </button>
-        <button class="hud-btn hud-tenue" id="btn-datos" type="button" title="Códigos y copia">
+        <button class="hud-btn hud-tenue" id="btn-datos" type="button" title="Copia de seguridad">
           <svg viewBox="0 0 9 9" aria-hidden="true"><path d="M0 0h1v1h-1zM1 0h1v1h-1zM2 0h1v1h-1zM3 0h1v1h-1zM4 0h1v1h-1zM5 0h1v1h-1zM6 0h1v1h-1zM0 1h1v1h-1zM3 1h1v1h-1zM6 1h1v1h-1zM7 1h1v1h-1zM0 2h1v1h-1zM3 2h1v1h-1zM6 2h1v1h-1zM7 2h1v1h-1zM8 2h1v1h-1zM0 3h1v1h-1zM8 3h1v1h-1zM0 4h1v1h-1zM2 4h1v1h-1zM3 4h1v1h-1zM4 4h1v1h-1zM5 4h1v1h-1zM6 4h1v1h-1zM8 4h1v1h-1zM0 5h1v1h-1zM2 5h1v1h-1zM6 5h1v1h-1zM8 5h1v1h-1zM0 6h1v1h-1zM2 6h1v1h-1zM6 6h1v1h-1zM8 6h1v1h-1zM0 7h1v1h-1zM2 7h1v1h-1zM3 7h1v1h-1zM4 7h1v1h-1zM5 7h1v1h-1zM6 7h1v1h-1zM8 7h1v1h-1zM0 8h1v1h-1zM1 8h1v1h-1zM2 8h1v1h-1zM3 8h1v1h-1zM4 8h1v1h-1zM5 8h1v1h-1zM6 8h1v1h-1zM7 8h1v1h-1zM8 8h1v1h-1z"/></svg><span class="etiqueta">Copia</span>
         </button>
       </nav>
@@ -89,8 +89,7 @@
     </div>
     <div class="ventana-pie pie-bienvenida">
       <button class="btn btn-principal" id="bienvenida-entrar" type="button" data-cerrar autofocus>Entrar en la sala</button>
-      <p class="pie">Todo lo que dejes aquí se guarda en este navegador. Para enviárselo a otra persona, usa
-        <button class="enlace" id="pie-datos" type="button">un código de regalo</button>.</p>
+      <p class="pie">Todo lo que dejes aquí se guarda en este navegador.</p>
     </div>
   </div>
 </div>
@@ -150,7 +149,6 @@
 
     <div class="ventana-pie">
       <button class="btn btn-principal" id="reg-dejar">Dejar el regalo</button>
-      <button class="btn" id="reg-codigo">Copiar código para enviar</button>
       <button class="btn btn-tenue" data-cerrar>Cancelar</button>
     </div>
   </div>
@@ -299,22 +297,15 @@
 </div>
 
 
-<!-- ============ Ventana: códigos y copia de seguridad ============ -->
+<!-- ============ Ventana: copia de seguridad ============ -->
 <div class="fondo" id="modal-datos" hidden>
   <div class="ventana" role="dialog" aria-modal="true" aria-labelledby="t-datos">
     <div class="ventana-cabecera">
-      <h2 id="t-datos">Códigos y copia</h2>
+      <h2 id="t-datos">Copia de seguridad</h2>
       <button class="cerrar" data-cerrar aria-label="Cerrar">×</button>
     </div>
 
     <div class="ventana-cuerpo">
-      <section class="bloque">
-        <h3>Añadir un regalo que te han enviado</h3>
-        <p class="ayuda">Pega aquí el código que te pasó tu amiga y el regalo aparecerá en la sala.</p>
-        <textarea id="codigo-entrada" rows="3" placeholder="Pega el código o el enlace"></textarea>
-        <button class="btn btn-principal" id="codigo-anadir">Añadir a la sala</button>
-      </section>
-
       <section class="bloque">
         <h3>Copia de seguridad</h3>
         <p class="ayuda">Guarda este texto en un archivo si no quieres perder la sala al cambiar de navegador.</p>

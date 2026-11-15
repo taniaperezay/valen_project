@@ -103,19 +103,13 @@ GitHub Pages sirve archivos, pero no guarda datos. Cada persona que abre la pág
 tiene **su propia sala**, guardada en su navegador. Si tu amiga entra desde su móvil,
 ve la suya, no la tuya.
 
-Para que los regalos lleguen de verdad, la página usa códigos:
+Por eso los regalos que todo el mundo ve son los de `regalosFijos` en
+`js/config.js`: se añaden ahí, a mano, y aparecen en la sala de los regalos para
+cualquiera que abra la página. Los que alguien deje desde la propia página solo
+se quedan en su navegador.
 
-1. Tu amiga entra, pulsa **Dejar un regalo**, lo envuelve y pulsa
-   **Copiar código para enviar**.
-2. Te pasa ese enlace (o ese texto) por donde sea.
-3. La cumpleañera lo abre: si es un enlace, el regalo aparece solo. Si es un texto,
-   lo pega en **Códigos y copia → Añadir a la sala**.
-
-Así el regalo queda en la sala de ella, con su mensaje y su envoltorio.
-
-**Consejo:** recoge tú todos los códigos antes del día, móntale la sala completa
-en un navegador y usa **Códigos y copia → Copiar** para guardarte una copia de
-seguridad. Si algo se borra, la restauras pegando ese texto.
+En **Copia** puedes guardar una copia de seguridad de tu sala y restaurarla
+pegando ese texto si algo se borra.
 
 Si algún día quieres que los regalos se compartan solos entre todos, hace falta una
 base de datos (Firebase o Supabase tienen plan gratuito). Eso ya no puede vivir solo
@@ -131,7 +125,7 @@ sala-de-cumple/
 ├── css/style.css   Colores, tipografías y componentes
 ├── js/config.js    ← lo que tú editas: nombre, fecha, textos, paletas
 ├── js/room.js      Dibuja la sala píxel a píxel y anima globos y velas
-└── js/app.js       Estado, guardado en el navegador y códigos de regalo
+└── js/app.js       Estado y guardado en el navegador
 ```
 
 El lienzo mide 256×160 píxeles de verdad y luego se amplía a números enteros, que

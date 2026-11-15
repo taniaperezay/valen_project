@@ -68,7 +68,7 @@ const CONFIG = {
   regalosFijos: [
     {
       de: "Tu mejor amiga",
-      mensaje: "Escribe aquí lo que quieras decirle con este regalo.",
+      mensaje: "Gracias por ser casa cuando todo lo demás se tambaleaba. Que este año te devuelva todo lo que repartes sin darte cuenta. Te quiero muchísimo.",
       caja: "#8c2f45", cinta: "#c9a227", patron: "asanoha", lazo: "mizuhiki", tamano: "grande",
     },
     {
@@ -93,11 +93,11 @@ const CONFIG = {
       forma: "deseo",
       nombre: "La rama de los deseos",
       de: "Tu mejor amiga",
-      mensaje: "Escribe aquí el mensaje de la rama de los deseos.",
+      mensaje: "Una rama para colgar todo lo que quieras que te pase este año. Yo ya colgué el primero: que sigamos cumpliendo años juntas, muchos, muchísimos.",
     },
     {
       de: "El conde Drácula",
-      mensaje: "Una capa de terciopelo para las noches frías. Quinientos años y aún tengo estilo.",
+      mensaje: "Una capa de terciopelo para las noches frías, que en Transilvania las vas a necesitar: en 2027 os espero en Rumanía. Mi castillo ya tiene las habitaciones preparadas.",
       caja: "#4c3760", cinta: "#9a8fb0", patron: "seigaiha", lazo: "mizuhiki", tamano: "grande",
     },
   ],

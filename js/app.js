@@ -1,7 +1,6 @@
 /* ===========================================================
    app.js — Une la configuración, el dibujo y la interfaz.
-   Guarda todo en el navegador (localStorage) y permite
-   compartir regalos sueltos mediante un código de texto.
+   Guarda todo en el navegador (localStorage).
    =========================================================== */
 
 (function () {
@@ -187,25 +186,7 @@
     };
   }
 
-  /* ---------- códigos compartibles ---------- */
-
-  function aCodigo(objeto) {
-    const bytes = new TextEncoder().encode(JSON.stringify(objeto));
-    let binario = "";
-    bytes.forEach(function (b) { binario += String.fromCharCode(b); });
-    return btoa(binario).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "");
-  }
-
-  function deCodigo(texto) {
-    let s = String(texto).trim();
-    const coincide = s.match(/regalo=([A-Za-z0-9\-_]+)/);
-    if (coincide) s = coincide[1];
-    s = s.replace(/[^A-Za-z0-9\-_]/g, "").replace(/-/g, "+").replace(/_/g, "/");
-    while (s.length % 4 !== 0) s += "=";
-    const binario = atob(s);
-    const bytes = Uint8Array.from(binario, function (ch) { return ch.charCodeAt(0); });
-    return JSON.parse(new TextDecoder().decode(bytes));
-  }
+  /* ---------- portapapeles ---------- */
 
   function copiarTexto(texto) {
     if (navigator.clipboard && window.isSecureContext) {
@@ -364,26 +345,6 @@
     aviso("Tu regalo ya está en el tatami. Gracias, " + g.de + ".");
     const indice = estado.regalos.length - 1;
     setTimeout(function () { Room.confetiEnRegalo(indice, 40); }, 150);
-  }
-
-  function copiarCodigoRegalo() {
-    const g = leerFormularioRegalo();
-    const codigo = aCodigo(g);
-    const esWeb = location.protocol === "http:" || location.protocol === "https:";
-    const texto = esWeb
-      ? location.origin + location.pathname + "#regalo=" + codigo
-      : codigo;
-    copiarTexto(texto).then(function (ok) {
-      if (ok) {
-        aviso(esWeb ? "Enlace copiado. Envíaselo y el regalo aparecerá en su sala."
-                    : "Código copiado. Envíaselo para que lo pegue en «Códigos y copia».");
-      } else {
-        $("#copia-texto").value = texto;
-        cerrar();
-        abrir("modal-datos");
-        aviso("Copia a mano el texto del recuadro.");
-      }
-    });
   }
 
   /* ---------- la tarta ---------- */
@@ -586,30 +547,7 @@
 
   function abrirDatos() {
     $("#copia-texto").value = JSON.stringify(estado);
-    $("#codigo-entrada").value = "";
     abrir("modal-datos");
-  }
-
-  function anadirDesdeCodigo() {
-    const texto = $("#codigo-entrada").value;
-    if (!texto.trim()) { aviso("Pega primero un código."); return; }
-    let g;
-    try {
-      g = sanearRegalo(deCodigo(texto));
-    } catch (e) {
-      aviso("Ese código no se ha podido leer. Revisa que esté completo.");
-      return;
-    }
-    if (estado.regalos.some(function (r) { return r.id === g.id; })) {
-      aviso("Ese regalo ya está en la sala.");
-      return;
-    }
-    estado.regalos.push(g);
-    guardar();
-    actualizarContador();
-    cerrar();
-    aviso("Ha llegado un regalo de " + g.de + ".");
-    setTimeout(function () { Room.confetiEnRegalo(estado.regalos.length - 1, 40); }, 80);
   }
 
   function restaurarCopia() {
@@ -668,7 +606,7 @@
       aviso("¡Guau! Soy el Max y he venido a comerme las migas de la tarta.");
       Room.confeti(zona.x + zona.w / 2, zona.y, 10);
     } else if (zona.id === "dracula") {
-      aviso("Llevo quinientos años de cumpleaños y ninguno con una tarta tan buena. Feliz cumple, " + CONFIG.nombre + ".");
+      aviso("Feliz cumple, " + CONFIG.nombre + ". Ve haciendo la maleta: en 2027 nos vamos a Rumanía y os invito a mi castillo.");
       Room.confeti(zona.x + 33, zona.y + 8, 14);
     }
   }
@@ -712,27 +650,6 @@
       Room.previaTarta(ctxPreviaTarta, borradorTarta);
     }
     requestAnimationFrame(bucleVistas);
-  }
-
-  /* ---------- enlaces recibidos ---------- */
-
-  function revisarEnlace() {
-    if (location.hash.indexOf("regalo=") === -1) return;
-    try {
-      const g = sanearRegalo(deCodigo(location.hash));
-      if (!estado.regalos.some(function (r) { return r.id === g.id; })) {
-        estado.regalos.push(g);
-        guardar();
-        actualizarContador();
-        setTimeout(function () {
-          aviso("Ha llegado un regalo de " + g.de + ".");
-          Room.confetiEnRegalo(estado.regalos.length - 1, 44);
-        }, 400);
-      }
-    } catch (e) {
-      aviso("El enlace traía un código que no se ha podido leer.");
-    }
-    history.replaceState(null, "", location.pathname + location.search);
   }
 
   /* ---------- flechas para recorrer la sala ---------- */
@@ -782,7 +699,6 @@
     $("#btn-nota").addEventListener("click", abrirNota);
     $("#dialogo").addEventListener("click", tocarDialogo);
     $("#btn-datos").addEventListener("click", abrirDatos);
-    $("#pie-datos").addEventListener("click", function () { cerrar(); abrirDatos(); });
     $("#btn-bienvenida").addEventListener("click", function () { abrir("modal-bienvenida"); });
 
     $("#btn-soplar").addEventListener("click", function () {
@@ -802,7 +718,6 @@
     });
 
     $("#reg-dejar").addEventListener("click", dejarRegalo);
-    $("#reg-codigo").addEventListener("click", copiarCodigoRegalo);
 
     $("#tarta-guardar").addEventListener("click", guardarTarta);
     $("#tarta-velas").addEventListener("input", function () {
@@ -817,7 +732,6 @@
 
     $("#detalle-quitar").addEventListener("click", quitarRegalo);
 
-    $("#codigo-anadir").addEventListener("click", anadirDesdeCodigo);
     $("#copia-restaurar").addEventListener("click", restaurarCopia);
     $("#copia-vaciar").addEventListener("click", vaciarSala);
     $("#copia-copiar").addEventListener("click", function () {
@@ -864,7 +778,6 @@
     conectarFlechas();
     requestAnimationFrame(bucleVistas);
     abrir("modal-bienvenida");   // el saludo sale en una ventana al entrar
-    revisarEnlace();
   }
 
   if (document.readyState === "loading") {
